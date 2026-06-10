@@ -40,42 +40,42 @@ function AdminLoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md glass-panel p-8 rounded-[2.5rem] border-2 border-white/60 relative z-10 flex flex-col gap-6 shadow-2xl">
+    <div className="w-full max-w-md glass-panel p-8 md:p-10 rounded-[32px] border-2 border-white/60 relative z-10 flex flex-col gap-6 shadow-2xl">
       
-      <div className="flex flex-col items-center gap-2 text-center">
-        <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-md">
-          <Leaf size={24} />
+      <div className="flex flex-col items-center gap-3 text-center">
+        <div className="w-12 h-12 rounded-2xl bg-[#374b3f] flex items-center justify-center text-white shadow-md">
+          <Leaf size={22} />
         </div>
-        <h1 className="text-2xl font-black tracking-tight text-foreground mt-2">
-          Green Girl Admin
+        <h1 className="serif-heading text-2xl font-black tracking-widest text-[#121815] uppercase mt-2">
+          GREEN GIRL
         </h1>
-        <p className="text-xs font-medium text-foreground/60 max-w-xs">
-          Restricted access portal. Please log in using your authorized boutique credentials.
+        <p className="text-[10px] font-bold tracking-widest text-[#374b3f] uppercase">
+          Administrative Node Lock
         </p>
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-800 text-xs px-4 py-3 rounded-2xl flex items-center gap-2.5">
-          <ShieldAlert size={16} className="shrink-0 text-red-600" />
-          <span>{error}</span>
+        <div className="bg-red-500/10 border border-red-500/20 text-red-900 text-xs px-4.5 py-3.5 rounded-2xl flex items-center gap-3">
+          <ShieldAlert size={16} className="shrink-0 text-red-700" />
+          <span className="font-semibold">{error}</span>
         </div>
       )}
 
       {success && (
-        <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 text-xs px-4 py-3 rounded-2xl flex items-center gap-2.5">
-          <Sparkles size={16} className="shrink-0 text-emerald-600 animate-spin" />
-          <span>Success! Redirecting you to the workspace dashboard...</span>
+        <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-950 text-xs px-4.5 py-3.5 rounded-2xl flex items-center gap-3">
+          <Sparkles size={16} className="shrink-0 text-[#374b3f] animate-spin" />
+          <span className="font-semibold">Credentials verified. Routing to admin workspace...</span>
         </div>
       )}
 
       <form onSubmit={handleLogin} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold text-foreground/70 tracking-wide uppercase px-1">
-            Admin Username
+          <label className="text-[10px] font-bold text-[#374b3f] tracking-wider uppercase px-1">
+            Admin Handle
           </label>
           <div className="relative">
-            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-foreground/40">
-              <Mail size={16} />
+            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-[#121815]/40">
+              <Mail size={14} />
             </span>
             <input
               type="email"
@@ -84,18 +84,18 @@ function AdminLoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@greengirl.com"
               disabled={isLoading || success}
-              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-white/40 bg-white/20 backdrop-blur-md text-sm text-foreground focus:outline-none focus:border-primary focus:bg-white/40 transition-all placeholder-foreground/30"
+              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-white/40 bg-white/20 backdrop-blur-md text-xs text-[#121815] font-semibold focus:outline-none focus:border-[#374b3f] focus:bg-white/40 transition-all placeholder-foreground/30"
             />
           </div>
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold text-foreground/70 tracking-wide uppercase px-1">
+          <label className="text-[10px] font-bold text-[#374b3f] tracking-wider uppercase px-1">
             Secret Keyphrase
           </label>
           <div className="relative">
-            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-foreground/40">
-              <Lock size={16} />
+            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-[#121815]/40">
+              <Lock size={14} />
             </span>
             <input
               type="password"
@@ -104,7 +104,7 @@ function AdminLoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••••••"
               disabled={isLoading || success}
-              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-white/40 bg-white/20 backdrop-blur-md text-sm text-foreground focus:outline-none focus:border-primary focus:bg-white/40 transition-all placeholder-foreground/30"
+              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-white/40 bg-white/20 backdrop-blur-md text-xs text-[#121815] font-semibold focus:outline-none focus:border-[#374b3f] focus:bg-white/40 transition-all placeholder-foreground/30"
             />
           </div>
         </div>
@@ -112,17 +112,17 @@ function AdminLoginForm() {
         <button
           type="submit"
           disabled={isLoading || success}
-          className="tactile-btn-primary w-full select-none py-3.5 mt-2 flex items-center justify-center gap-2 text-sm font-semibold tracking-wide disabled:opacity-50"
+          className="luxury-btn-primary w-full select-none py-3.5 mt-2 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest disabled:opacity-50"
         >
-          {isLoading ? "Authenticating Node..." : "Enter Admin Dashboard"}
-          {!isLoading && <ArrowRight size={16} />}
+          {isLoading ? "Validating security..." : "Unlock Dashboard"}
+          {!isLoading && <ArrowRight size={14} />}
         </button>
       </form>
 
-      <div className="border-t border-foreground/5 pt-4 text-center">
-        <p className="text-[10px] text-foreground/40 leading-relaxed">
-          Authorized administrative personnel only. Credentials for evaluation are:<br />
-          <span className="font-mono text-foreground/60 font-semibold select-all">admin@greengirl.com</span> / <span className="font-mono text-foreground/60 font-semibold select-all">greengirl2026</span>
+      <div className="border-t border-[#121815]/5 pt-4 text-center">
+        <p className="text-[9px] text-[#121815]/50 leading-relaxed font-semibold">
+          Strict authorized personnel bounds. Sandbox credentials for evaluation:<br />
+          <span className="font-mono text-[#374b3f] select-all font-bold">admin@greengirl.com</span> / <span className="font-mono text-[#374b3f] select-all font-bold">greengirl2026</span>
         </p>
       </div>
 
@@ -132,15 +132,15 @@ function AdminLoginForm() {
 
 export default function AdminLoginPage() {
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-6 overflow-hidden">
+    <div className="relative min-h-screen flex items-center justify-center p-6 overflow-hidden bg-[#FAF6F0]">
       {/* Background soft pastel radial elements */}
-      <div className="absolute top-[20%] left-[20%] w-[50%] h-[50%] rounded-full bg-accent-mint/40 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[20%] right-[20%] w-[50%] h-[50%] rounded-full bg-accent-blush/30 blur-[120px] pointer-events-none" />
+      <div className="absolute top-[20%] left-[20%] w-[50vw] h-[50vw] rounded-full bg-[#e3ebe6] opacity-30 blur-[130px] pointer-events-none" />
+      <div className="absolute bottom-[20%] right-[20%] w-[50vw] h-[50vw] rounded-full bg-[#ebded9] opacity-25 blur-[130px] pointer-events-none" />
       
       <Suspense fallback={
-        <div className="w-full max-w-md glass-panel p-8 rounded-[2.5rem] border-2 border-white/60 relative z-10 flex flex-col items-center justify-center gap-4 min-h-[350px]">
-          <Leaf className="text-primary animate-bounce" size={32} />
-          <p className="text-xs font-semibold text-foreground/60">Loading credentials portal...</p>
+        <div className="w-full max-w-md glass-panel p-8 rounded-[32px] border-2 border-white/60 relative z-10 flex flex-col items-center justify-center gap-4 min-h-[350px]">
+          <Leaf className="text-[#374b3f] animate-bounce" size={28} />
+          <p className="text-[10px] font-bold tracking-wider text-[#121815]/50 uppercase">Loading credentials portal...</p>
         </div>
       }>
         <AdminLoginForm />

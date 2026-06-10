@@ -1,166 +1,197 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #f5f7f5; /* Soft sage pastel background */
-  --foreground: #2a3430; /* Warm charcoal text */
-  --primary: #4e6e5d; /* Elegant forest green */
-  --primary-hover: #3c5648;
-  --accent-blush: #f7ebe8; /* Warm pastel pink */
-  --accent-mint: #e2ede4; /* Pastel green */
-  --accent-gold: #ebd8c0; /* Soft gold */
+  /* Luxury 2026 Organic Color Palette */
+  --bg-primary: #FAF6F0;      /* Warm Luxe Oat/Alabaster */
+  --text-primary: #121815;    /* Warm Midnight Charcoal */
+  --brand-green: #374b3f;     /* Deep Sage Olive */
+  --brand-green-hover: #26352c;
   
-  /* Tactile 3D transitions */
-  --shadow-tactile: 0 4px 6px -1px rgba(42, 52, 48, 0.06), 0 2px 4px -1px rgba(42, 52, 48, 0.04), inset 0 -2px 0 0 rgba(42, 52, 48, 0.12);
-  --shadow-tactile-hover: 0 10px 15px -3px rgba(42, 52, 48, 0.1), 0 4px 6px -2px rgba(42, 52, 48, 0.04), inset 0 -3px 0 0 rgba(42, 52, 48, 0.16);
-  --shadow-tactile-active: 0 1px 2px 0 rgba(42, 52, 48, 0.05), inset 0 1px 2px 0 rgba(42, 52, 48, 0.08);
+  --pastel-sage: #e3ebe6;     /* Muted organic sage */
+  --pastel-blush: #ebded9;    /* Soft terracotta/blush */
+  --pastel-gold: #ebdcc9;     /* Soft champagne gold */
+  
+  --card-glass-bg: rgba(255, 255, 255, 0.35);
+  --card-glass-border: rgba(255, 255, 255, 0.4);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-hover: var(--primary-hover);
-  --color-accent-blush: var(--accent-blush);
-  --color-accent-mint: var(--accent-mint);
-  --color-accent-gold: var(--accent-gold);
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+  --color-primary: var(--brand-green);
+  --color-primary-hover: var(--brand-green-hover);
+  --color-accent-sage: var(--pastel-sage);
+  --color-accent-blush: var(--pastel-blush);
+  --color-accent-gold: var(--pastel-gold);
 }
 
-/* Glassmorphism Panel Class */
-.glass-panel {
-  background-color: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 8px 32px 0 rgba(78, 110, 93, 0.05);
-}
-
-/* Glassmorphic & 3D Interactive Buttons */
+/* Glassmorphism Buttons & Inputs */
 .glass-button {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 500;
-  padding: 0.75rem 1.5rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.825rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.875rem 1.75rem;
   border-radius: 9999px;
-  background-color: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: var(--foreground);
-  box-shadow: var(--shadow-tactile);
+  background-color: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: var(--text-primary);
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              background-color 0.3s ease, 
+              border-color 0.3s ease;
+  box-shadow: 0 4px 15px rgba(18, 24, 21, 0.02), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
-/* Glossy light reflection on hover */
-.glass-button::before {
-  content: "";
+/* Diagonal Gloss Shimmer Shifting Effect */
+.glass-button::after {
+  content: '';
   position: absolute;
   top: 0;
-  left: -100%;
-  width: 50%;
+  left: -200%;
+  width: 150%;
   height: 100%;
   background: linear-gradient(
-    120deg,
-    transparent,
-    rgba(255, 255, 255, 0.35),
-    transparent
+    115deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0) 70%,
+    transparent 100%
   );
-  transition: all 0.6s ease;
+  transition: left 0.75s ease-in-out;
 }
 
-.glass-button:hover::before {
-  left: 150%;
+.glass-button:hover::after {
+  left: 200%;
 }
 
 .glass-button:hover {
-  transform: translateY(-3px) scale(1.02);
-  background-color: rgba(255, 255, 255, 0.4);
-  border-color: rgba(255, 255, 255, 0.55);
-  box-shadow: var(--shadow-tactile-hover);
+  transform: translateY(-2px) scale(1.01);
+  background-color: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 8px 20px rgba(18, 24, 21, 0.05), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
+/* 3D Tactile Depression on Click */
 .glass-button:active {
-  transform: translateY(1px) scale(0.97);
-  box-shadow: var(--shadow-tactile-active);
+  transform: translateY(2px) scale(0.98);
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 4px 10px rgba(18, 24, 21, 0.12), 
+              0 1px 2px rgba(18, 24, 21, 0.02);
 }
 
-/* Tactile 3D Buttons - Primary Green */
-.tactile-btn-primary {
+/* Luxurious Brand Button Variant */
+.luxury-btn-primary {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 500;
-  padding: 0.75rem 1.5rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.825rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.875rem 1.75rem;
   border-radius: 9999px;
-  background-color: var(--primary);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: var(--shadow-tactile);
+  background-color: var(--brand-green);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              background-color 0.3s ease;
+  box-shadow: 0 4px 15px rgba(55, 75, 63, 0.15), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-.tactile-btn-primary::before {
-  content: "";
+.luxury-btn-primary::after {
+  content: '';
   position: absolute;
   top: 0;
-  left: -100%;
-  width: 50%;
+  left: -200%;
+  width: 150%;
   height: 100%;
   background: linear-gradient(
-    120deg,
-    transparent,
-    rgba(255, 255, 255, 0.25),
-    transparent
+    115deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 70%,
+    transparent 100%
   );
-  transition: all 0.6s ease;
+  transition: left 0.75s ease-in-out;
 }
 
-.tactile-btn-primary:hover::before {
-  left: 150%;
+.luxury-btn-primary:hover::after {
+  left: 200%;
 }
 
-.tactile-btn-primary:hover {
-  transform: translateY(-3px) scale(1.02);
-  background-color: var(--primary-hover);
-  box-shadow: var(--shadow-tactile-hover);
+.luxury-btn-primary:hover {
+  transform: translateY(-2px) scale(1.01);
+  background-color: var(--brand-green-hover);
+  box-shadow: 0 8px 25px rgba(55, 75, 63, 0.25), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-.tactile-btn-primary:active {
-  transform: translateY(1px) scale(0.97);
-  box-shadow: var(--shadow-tactile-active);
+.luxury-btn-primary:active {
+  transform: translateY(2px) scale(0.98);
+  box-shadow: inset 0 4px 10px rgba(18, 24, 21, 0.3), 
+              0 1px 2px rgba(18, 24, 21, 0.05);
 }
 
-/* Bento Card Grid Item */
-.bento-card {
-  background-color: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 20px 0 rgba(78, 110, 93, 0.03);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+/* Luxurious Card & Panels */
+.luxury-card {
+  background-color: var(--card-glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--card-glass-border);
+  box-shadow: 0 8px 30px 0 rgba(55, 75, 63, 0.03);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.4s ease;
 }
 
-.bento-card:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 20px 40px 0 rgba(78, 110, 93, 0.08);
-  border-color: rgba(255, 255, 255, 0.55);
+.luxury-card:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 20px 45px 0 rgba(55, 75, 63, 0.07);
+}
+
+/* Premium Typography Classes */
+.serif-heading {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.sans-body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 html {
   scroll-behavior: smooth;
   height: 100%;
+  background-color: var(--bg-primary);
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Plus Jakarta Sans', sans-serif;
   overflow-x: hidden;
   min-height: 100%;
+  -webkit-font-smoothing: antialiased;
 }
