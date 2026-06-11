@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Green Girl — Boutique Gift Shop",
-  description: "A premium, hand-crafted collection of boutique gifts, organic plants, ceramics, and curated gift boxes.",
+  title: "Green Girl — Premium Gifting Concept",
+  description: "A dark luxury showcase of volcanic clay, matte ceramics, rare flora, and custom black wood crates.",
 };
 
 export default function RootLayout({
@@ -12,8 +12,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
-      <body className="min-h-full flex flex-col antialiased">
+    <html lang="en" className="h-full" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col antialiased bg-[#090B0E]" suppressHydrationWarning>
         {children}
       </body>
     </html>

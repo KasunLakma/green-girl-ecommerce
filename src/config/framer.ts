@@ -7,8 +7,8 @@ import { Variants } from "framer-motion";
  */
 export const SUPERHUMAN_SPRING = {
   type: "spring" as const,
-  stiffness: 180,
-  damping: 24,
+  stiffness: 120,
+  damping: 20,
   mass: 0.5,
 };
 
@@ -22,7 +22,55 @@ export const VIEWPORT_CONFIG = {
 };
 
 /**
- * Superhuman-inspired animations variants for scroll/mount effects.
+ * Programmatic chaos-to-order scroll animations.
+ * Elements start dispersed and rotated (chaos) and transition smoothly to their perfect
+ * design-aligned grid slots (order) as they scroll into view.
+ */
+export const chaosToOrderContainer: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.05,
+    }
+  }
+};
+
+/**
+ * Generates dynamic chaos offsets based on child index or seed,
+ * creating an organic, scattered entrance sequence.
+ */
+export const chaosToOrderChild = (index: number = 0): Variants => {
+  const rotateDeg = ((index * 73) % 24) - 12;      // -12deg to +12deg rotation
+  const translateX = ((index * 149) % 80) - 40;     // -40px to +40px translation
+  const translateY = ((index * 263) % 60) + 30;      // +30px to +90px translation (always lower)
+
+  return {
+    hidden: { 
+      opacity: 0,
+      x: translateX,
+      y: translateY,
+      rotate: rotateDeg,
+      scale: 0.94
+    },
+    visible: {
+      opacity: 1,
+      x: 0,
+      y: 0,
+      rotate: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 120,
+        damping: 20,
+        mass: 0.5,
+      }
+    }
+  };
+};
+
+/**
+ * Standard animation variants for scroll/mount effects.
  */
 export const fadeInUpVariants: Variants = {
   hidden: { 
