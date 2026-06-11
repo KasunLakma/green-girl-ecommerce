@@ -43,14 +43,14 @@ function AdminLoginForm() {
     <div className="w-full max-w-md glass-panel p-8 md:p-10 rounded-[32px] border-2 border-white/60 relative z-10 flex flex-col gap-6 shadow-2xl">
       
       <div className="flex flex-col items-center gap-3 text-center">
-        <div className="w-12 h-12 rounded-2xl bg-[#374b3f] flex items-center justify-center text-white shadow-md">
+        <div className="w-12 h-12 rounded-2xl bg-[#4e6b5c] flex items-center justify-center text-white shadow-md">
           <Leaf size={22} />
         </div>
-        <h1 className="serif-heading text-2xl font-black tracking-widest text-[#121815] uppercase mt-2">
-          GREEN GIRL
+        <h1 className="serif-heading text-2xl font-black tracking-widest text-[#21352b] uppercase mt-2">
+          GREEN GIRL🌸
         </h1>
-        <p className="text-[10px] font-bold tracking-widest text-[#374b3f] uppercase">
-          Administrative Node Lock
+        <p className="text-[10px] font-bold tracking-widest text-[#4e6b5c] uppercase">
+          Authorized Admin Gateway
         </p>
       </div>
 
@@ -63,18 +63,18 @@ function AdminLoginForm() {
 
       {success && (
         <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-950 text-xs px-4.5 py-3.5 rounded-2xl flex items-center gap-3">
-          <Sparkles size={16} className="shrink-0 text-[#374b3f] animate-spin" />
-          <span className="font-semibold">Credentials verified. Routing to admin workspace...</span>
+          <Sparkles size={16} className="shrink-0 text-[#4e6b5c] animate-spin" />
+          <span className="font-semibold">Security passed. Entering boutique control room...</span>
         </div>
       )}
 
       <form onSubmit={handleLogin} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-bold text-[#374b3f] tracking-wider uppercase px-1">
-            Admin Handle
+          <label className="text-[10px] font-bold text-[#4e6b5c] tracking-wider uppercase px-1">
+            Admin Identifier
           </label>
           <div className="relative">
-            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-[#121815]/40">
+            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-[#21352b]/40">
               <Mail size={14} />
             </span>
             <input
@@ -84,17 +84,17 @@ function AdminLoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@greengirl.com"
               disabled={isLoading || success}
-              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-white/40 bg-white/20 backdrop-blur-md text-xs text-[#121815] font-semibold focus:outline-none focus:border-[#374b3f] focus:bg-white/40 transition-all placeholder-foreground/30"
+              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-white/40 bg-white/20 backdrop-blur-md text-xs text-[#21352b] font-semibold focus:outline-none focus:border-[#4e6b5c] focus:bg-white/40 transition-all placeholder-foreground/30"
             />
           </div>
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-bold text-[#374b3f] tracking-wider uppercase px-1">
+          <label className="text-[10px] font-bold text-[#4e6b5c] tracking-wider uppercase px-1">
             Secret Keyphrase
           </label>
           <div className="relative">
-            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-[#121815]/40">
+            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-[#21352b]/40">
               <Lock size={14} />
             </span>
             <input
@@ -104,7 +104,7 @@ function AdminLoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••••••"
               disabled={isLoading || success}
-              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-white/40 bg-white/20 backdrop-blur-md text-xs text-[#121815] font-semibold focus:outline-none focus:border-[#374b3f] focus:bg-white/40 transition-all placeholder-foreground/30"
+              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-white/40 bg-white/20 backdrop-blur-md text-xs text-[#21352b] font-semibold focus:outline-none focus:border-[#4e6b5c] focus:bg-white/40 transition-all placeholder-foreground/30"
             />
           </div>
         </div>
@@ -112,17 +112,17 @@ function AdminLoginForm() {
         <button
           type="submit"
           disabled={isLoading || success}
-          className="luxury-btn-primary w-full select-none py-3.5 mt-2 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest disabled:opacity-50"
+          className="cute-btn-primary w-full select-none py-3.5 mt-2 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest disabled:opacity-50"
         >
-          {isLoading ? "Validating security..." : "Unlock Dashboard"}
+          {isLoading ? "Consulting Firebase..." : "Unlock Dashboard"}
           {!isLoading && <ArrowRight size={14} />}
         </button>
       </form>
 
-      <div className="border-t border-[#121815]/5 pt-4 text-center">
-        <p className="text-[9px] text-[#121815]/50 leading-relaxed font-semibold">
+      <div className="border-t border-[#21352b]/5 pt-4 text-center">
+        <p className="text-[9px] text-[#21352b]/50 leading-relaxed font-semibold">
           Strict authorized personnel bounds. Sandbox credentials for evaluation:<br />
-          <span className="font-mono text-[#374b3f] select-all font-bold">admin@greengirl.com</span> / <span className="font-mono text-[#374b3f] select-all font-bold">greengirl2026</span>
+          <span className="font-mono text-[#4e6b5c] select-all font-bold">admin@greengirl.com</span> / <span className="font-mono text-[#4e6b5c] select-all font-bold">greengirl2026</span>
         </p>
       </div>
 
@@ -132,15 +132,15 @@ function AdminLoginForm() {
 
 export default function AdminLoginPage() {
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-6 overflow-hidden bg-[#FAF6F0]">
+    <div className="relative min-h-screen flex items-center justify-center p-6 overflow-hidden">
       {/* Background soft pastel radial elements */}
-      <div className="absolute top-[20%] left-[20%] w-[50vw] h-[50vw] rounded-full bg-[#e3ebe6] opacity-30 blur-[130px] pointer-events-none" />
-      <div className="absolute bottom-[20%] right-[20%] w-[50vw] h-[50vw] rounded-full bg-[#ebded9] opacity-25 blur-[130px] pointer-events-none" />
+      <div className="absolute top-[20%] left-[20%] w-[50vw] h-[50vw] rounded-full bg-[#dbece2] opacity-30 blur-[130px] pointer-events-none" />
+      <div className="absolute bottom-[20%] right-[20%] w-[50vw] h-[50vw] rounded-full bg-[#fcefe9] opacity-25 blur-[130px] pointer-events-none" />
       
       <Suspense fallback={
         <div className="w-full max-w-md glass-panel p-8 rounded-[32px] border-2 border-white/60 relative z-10 flex flex-col items-center justify-center gap-4 min-h-[350px]">
-          <Leaf className="text-[#374b3f] animate-bounce" size={28} />
-          <p className="text-[10px] font-bold tracking-wider text-[#121815]/50 uppercase">Loading credentials portal...</p>
+          <Leaf className="text-[#4e6b5c] animate-bounce" size={28} />
+          <p className="text-[10px] font-bold tracking-wider text-[#21352b]/50 uppercase">Loading portal...</p>
         </div>
       }>
         <AdminLoginForm />
