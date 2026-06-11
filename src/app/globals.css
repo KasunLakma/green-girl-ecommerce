@@ -2,38 +2,32 @@
 @import "tailwindcss";
 
 :root {
-  /* Cute Aesthetic 2026 Boutique Gift Shop Palette */
-  --bg-primary: #FAF9F6;      /* Pure Soft Cream */
-  --text-primary: #21352b;    /* Deep Forest Charcoal */
-  --brand-mint: #4e6b5c;      /* Pastel Olive Sage */
-  --brand-mint-hover: #374d41;
+  /* Premium Superhuman-Inspired Near-Black Palette */
+  --bg-primary: #0B0F12;      /* Deep Charcoal / Near-Black */
+  --text-primary: #FFFFFF;    /* Pure High-Contrast White */
+  --text-secondary: #94A3B8;  /* Muted Silver-Grey */
   
-  --cute-mint: #dbece2;       /* Soft mint pastel */
-  --cute-peach: #fcefe9;      /* Delicate rose peach */
-  --cute-gold: #fcf2e3;       /* Warm vanilla gold */
+  --brand-mint: #10B981;      /* Crisp Mint Accent (Superhuman feel) */
+  --brand-mint-hover: #34D399;
   
-  --card-glass-bg: rgba(255, 255, 255, 0.45);
-  --card-glass-border: rgba(255, 255, 255, 0.4);
+  --card-glass-bg: rgba(255, 255, 255, 0.03);
+  --card-glass-border: rgba(255, 255, 255, 0.08);
 }
 
 @theme inline {
   --color-background: var(--bg-primary);
   --color-foreground: var(--text-primary);
+  --color-muted: var(--text-secondary);
   --color-primary: var(--brand-mint);
   --color-primary-hover: var(--brand-mint-hover);
-  --color-accent-sage: var(--cute-mint);
-  --color-accent-blush: var(--cute-peach);
-  --color-accent-gold: var(--cute-gold);
+  --color-accent-sage: rgba(16, 185, 129, 0.1);
+  --color-accent-blush: rgba(244, 63, 94, 0.1);
+  --color-accent-gold: rgba(245, 158, 11, 0.1);
 }
 
-/* Base Body with foliage pattern overlay */
+/* Base Body Style */
 body {
   background-color: var(--bg-primary);
-  background-image: url('/bg_foliage.png');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-position: center;
   color: var(--text-primary);
   font-family: 'Plus Jakarta Sans', sans-serif;
   overflow-x: hidden;
@@ -41,13 +35,13 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* True 2026 Interactive Glassmorphism Panel */
+/* Superhuman Tactile 3D Glassmorphic Panel */
 .glass-panel {
-  background-color: rgba(255, 255, 255, 0.45);
+  background-color: var(--card-glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 8px 32px 0 rgba(78, 107, 92, 0.04);
+  border: 1px solid var(--card-glass-border);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
 }
 
 /* Glassmorphism Buttons & Inputs */
@@ -66,19 +60,16 @@ body {
   border-radius: 9999px;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  background-color: rgba(255, 255, 255, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text-primary);
   cursor: pointer;
-  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-              box-shadow 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-              background-color 0.3s ease, 
-              border-color 0.3s ease;
-  box-shadow: 0 4px 12px rgba(33, 53, 43, 0.03), 
-              inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
+              background-color 0.2s ease, 
+              border-color 0.2s ease;
 }
 
-/* Soft lighting reflection glide effect on hover */
 .glass-button::after {
   content: '';
   position: absolute;
@@ -90,11 +81,11 @@ body {
     115deg,
     transparent 0%,
     rgba(255, 255, 255, 0) 30%,
-    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0.08) 50%,
     rgba(255, 255, 255, 0) 70%,
     transparent 100%
   );
-  transition: left 0.75s ease-in-out;
+  transition: left 0.5s ease-in-out;
 }
 
 .glass-button:hover::after {
@@ -102,22 +93,18 @@ body {
 }
 
 .glass-button:hover {
-  transform: translateY(-3px) scale(1.02);
-  background-color: rgba(255, 255, 255, 0.5);
-  border-color: rgba(255, 255, 255, 0.55);
-  box-shadow: 0 8px 20px rgba(33, 53, 43, 0.05), 
-              inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
 }
 
-/* Tactile 3D click depression */
 .glass-button:active {
-  transform: translateY(3px) scale(0.97);
-  background-color: rgba(255, 255, 255, 0.2);
-  box-shadow: inset 0 4px 10px rgba(33, 53, 43, 0.12), 
-              0 1px 2px rgba(33, 53, 43, 0.01);
+  transform: translateY(1px);
+  background-color: rgba(255, 255, 255, 0.02);
 }
 
-/* Cute Brand Primary Button */
+/* Cute Brand Primary Button adapted for Dark Theme */
 .cute-btn-primary {
   position: relative;
   overflow: hidden;
@@ -132,14 +119,12 @@ body {
   padding: 0.875rem 1.75rem;
   border-radius: 9999px;
   background-color: var(--brand-mint);
-  color: #ffffff;
+  color: #0B0F12;
   border: 1px solid rgba(255, 255, 255, 0.15);
   cursor: pointer;
-  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-              box-shadow 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-              background-color 0.3s ease;
-  box-shadow: 0 4px 15px rgba(78, 107, 92, 0.12), 
-              inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
+              background-color 0.2s ease;
 }
 
 .cute-btn-primary::after {
@@ -153,11 +138,11 @@ body {
     115deg,
     transparent 0%,
     rgba(255, 255, 255, 0) 30%,
-    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.25) 50%,
     rgba(255, 255, 255, 0) 70%,
     transparent 100%
   );
-  transition: left 0.75s ease-in-out;
+  transition: left 0.5s ease-in-out;
 }
 
 .cute-btn-primary:hover::after {
@@ -165,33 +150,31 @@ body {
 }
 
 .cute-btn-primary:hover {
-  transform: translateY(-3px) scale(1.02);
+  transform: translateY(-2px);
   background-color: var(--brand-mint-hover);
-  box-shadow: 0 8px 25px rgba(78, 107, 92, 0.22), 
-              inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
 }
 
 .cute-btn-primary:active {
-  transform: translateY(3px) scale(0.97);
-  box-shadow: inset 0 4px 10px rgba(33, 53, 43, 0.3), 
-              0 1px 2px rgba(33, 53, 43, 0.05);
+  transform: translateY(1px);
 }
 
-/* Playful Bento Card */
+/* Playful Bento Card adapted for Dark Theme */
 .cute-bento-card {
-  background-color: rgba(255, 255, 255, 0.45);
+  background-color: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 4px 20px 0 rgba(78, 107, 92, 0.02);
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-              box-shadow 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-              border-color 0.4s ease;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.3s ease;
 }
 
 .cute-bento-card:hover {
-  border-color: rgba(255, 255, 255, 0.65);
-  box-shadow: 0 20px 45px 0 rgba(78, 107, 92, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+  transform: translateY(-4px);
 }
 
 /* Cute / Editorial Typography */
