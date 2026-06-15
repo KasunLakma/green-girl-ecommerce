@@ -2,13 +2,9 @@
 @import "tailwindcss";
 
 :root {
-  /* HYPE Dark Luxury Palette */
-  --bg-primary: #080B0D;      /* Solid Near-Black Charcoal */
-  --text-primary: #FFFFFF;    /* Pure Sharp White */
-  --text-secondary: #94A3B8;  /* Muted Silver-Grey */
-  
-  --brand-mint: #10B981;      /* Emerald Green Accent */
-  --brand-mint-hover: #34D399;
+  --bg-primary: #0B0F12;
+  --text-primary: #FFFFFF;
+  --text-secondary: #94A3B8;
 }
 
 @theme inline {
@@ -17,7 +13,6 @@
   --color-muted: var(--text-secondary);
 }
 
-/* Base Body Style */
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
@@ -27,41 +22,10 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* HYPE Luxury Frosted Glass Plates */
 .hype-glass {
-  background-color: rgba(255, 255, 255, 0.02);
+  background-color: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 16px 45px -12px rgba(0, 0, 0, 0.85);
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
-              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.25s ease;
-}
-
-.hype-glass:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 24px 55px -10px rgba(0, 0, 0, 0.9);
-}
-
-/* Active Click Depress - translateY(1px) scale(0.98) */
-.hype-interactive {
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
-              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
-              background-color 0.2s ease, 
-              border-color 0.2s ease;
-}
-
-.hype-interactive:hover {
-  transform: translateY(-1px);
-}
-
-.hype-interactive:active {
-  transform: translateY(1px) scale(0.98) !important;
-  box-shadow: 0 2px 8px -3px rgba(0, 0, 0, 0.8) !important;
-}
-
-html {
-  scroll-behavior: smooth;
-  height: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
 }
