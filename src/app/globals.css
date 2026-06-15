@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 :root {
-  --bg-primary: #0B0F12;
+  --bg-primary: #0B0E0B;
   --text-primary: #FFFFFF;
   --text-secondary: #94A3B8;
 }
@@ -13,12 +13,17 @@
   --color-muted: var(--text-secondary);
 }
 
+html, body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
 body {
-  background: linear-gradient(to bottom, #A2B997 0%, #1A261E 35%, #0B0F12 100%) no-repeat fixed;
+  background: linear-gradient(to bottom, #4A554A 0%, #222A23 30%, #111612 70%, #0B0E0B 100%) no-repeat fixed;
   color: var(--text-primary);
   font-family: 'Plus Jakarta Sans', sans-serif;
-  overflow-x: hidden;
-  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 
