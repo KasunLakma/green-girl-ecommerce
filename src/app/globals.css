@@ -14,11 +14,11 @@
 }
 
 body {
-  background-color: var(--bg-primary);
+  background: linear-gradient(to bottom, #A2B997 0%, #1A261E 35%, #0B0F12 100%) no-repeat fixed;
   color: var(--text-primary);
   font-family: 'Plus Jakarta Sans', sans-serif;
   overflow-x: hidden;
-  min-height: 100%;
+  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 
