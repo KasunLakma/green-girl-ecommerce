@@ -3,29 +3,23 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  ShoppingBag, 
   Sparkles, 
   ArrowRight, 
   Heart, 
   Gift, 
   Star, 
-  ShieldCheck, 
   Truck, 
   RefreshCw,
   Mail,
-  X,
-  Plus,
-  Minus
+  X
 } from "lucide-react";
+import { useCart } from "./layout";
 
 export default function StorefrontPage() {
-  const [activeTab, setActiveTab] = useState("HOME");
-  const [cartCount, setCartCount] = useState(0);
+  const { addToCart } = useCart();
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [likedProducts, setLikedProducts] = useState({});
   const [hoveredProduct, setHoveredProduct] = useState(null);
-
-  const navItems = ["HOME", "COLLECTIONS", "SPECIALS", "ABOUT"];
 
   const products = [
     {
@@ -66,62 +60,8 @@ export default function StorefrontPage() {
   return (
     <div className="relative z-10 min-h-screen w-full flex flex-col select-none overflow-x-hidden bg-[#0D110D]">
       
-      {/* Floating Navigation Overlay */}
-      <header className="fixed top-6 left-0 right-0 z-50 w-full max-w-5xl mx-auto px-4">
-        <div className="backdrop-blur-md bg-[#0D110D]/35 border border-white/[0.08] px-6 sm:px-8 py-3 rounded-full flex items-center justify-between shadow-[0_12px_40px_rgba(0,0,0,0.7)]">
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6E856A] to-[#B2C4AC] flex items-center justify-center shadow-[0_0_12px_rgba(178,196,172,0.4)]">
-              <span className="text-[#0D110D] font-extrabold text-sm tracking-tighter">GG</span>
-            </div>
-            <span className="text-xs font-bold tracking-[0.2em] uppercase text-white">GREEN GIRL</span>
-          </div>
-
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8">
-            {navItems.map((item) => (
-              <button
-                key={item}
-                onClick={() => setActiveTab(item)}
-                className="relative py-1 text-[10px] font-bold tracking-[0.2em] uppercase text-neutral-400 hover:text-white transition-colors duration-250 cursor-pointer active:scale-95 group"
-              >
-                <span className="relative z-10">{item}</span>
-                {activeTab === item ? (
-                  <motion.span 
-                    layoutId="activeNavLine"
-                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#B2C4AC] shadow-[0_0_10px_rgba(178,196,172,0.8)]"
-                    transition={{ type: "spring", stiffness: 180, damping: 20 }}
-                  />
-                ) : (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-[#B2C4AC]/40 group-hover:w-full transition-all duration-300" />
-                )}
-              </button>
-            ))}
-          </nav>
-
-          {/* Cart Icon */}
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => alert(`Your cart has ${cartCount} item(s). Proceeding to premium checkout is coming soon!`)}
-              className="relative p-2.5 rounded-full hover:bg-white/5 border border-white/0.05 transition-colors cursor-pointer group active:scale-95"
-            >
-              <ShoppingBag className="w-4 h-4 text-white group-hover:text-[#B2C4AC] transition-colors" />
-              {cartCount > 0 && (
-                <motion.span 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -top-1 -right-1 w-4 h-4 bg-[#B2C4AC] text-[#0D110D] text-[8px] font-black rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(178,196,172,0.6)]"
-                >
-                  {cartCount}
-                </motion.span>
-              )}
-            </button>
-          </div>
-        </div>
-      </header>
-
       {/* Interactive Hero Banner Section */}
-      <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center pt-24 px-4 overflow-hidden">
+      <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center pt-28 px-4 overflow-hidden">
         {/* Ambient glowing canvas behind */}
         <div className="absolute inset-0 z-0">
           <img 
@@ -281,7 +221,7 @@ export default function StorefrontPage() {
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
-                        setCartCount(prev => prev + 1);
+                        addToCart(product);
                       }}
                       className="px-4 py-2 rounded-full bg-[#B2C4AC] text-[#0D110D] font-bold text-[9px] tracking-wider uppercase hover:bg-[#A1B399] active:scale-95 transition-all cursor-pointer"
                     >
@@ -320,7 +260,7 @@ export default function StorefrontPage() {
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
-                    setCartCount(prev => prev + 1);
+                    addToCart(product);
                   }}
                   className="text-[9px] font-bold tracking-widest text-[#B2C4AC] uppercase group-hover:text-white transition-colors flex items-center gap-1 hover:underline cursor-pointer"
                 >
@@ -516,10 +456,10 @@ export default function StorefrontPage() {
                         />
                       ))}
                     </div>
-                    <span className="text-xs text-neutral-400 font-bold ml-1">{quickViewProduct.rating.toFixed(1)}</span>
+                    <span className="text-xs text-neutral-450 font-bold ml-1">{quickViewProduct.rating.toFixed(1)}</span>
                   </div>
 
-                  <p className="text-xs text-neutral-350 leading-relaxed mt-2">
+                  <p className="text-xs text-neutral-300 leading-relaxed mt-2">
                     {quickViewProduct.description}
                   </p>
                 </div>
@@ -539,7 +479,7 @@ export default function StorefrontPage() {
                   <div className="flex gap-3">
                     <button 
                       onClick={() => {
-                        setCartCount(prev => prev + 1);
+                        addToCart(quickViewProduct);
                         setQuickViewProduct(null);
                       }}
                       className="flex-1 py-3.5 bg-[#B2C4AC] text-[#0D110D] rounded-full font-black text-xs tracking-widest uppercase hover:bg-[#A1B399] transition-all active:scale-95 cursor-pointer text-center"
