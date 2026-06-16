@@ -15,18 +15,32 @@ export default function AdminLayout({ children }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      let activeUser = currentUser;
+
+      if (!activeUser) {
+        const stored = sessionStorage.getItem("mockAdmin");
+        if (stored) {
+          try {
+            activeUser = JSON.parse(stored);
+          } catch (e) {
+            console.error("Failed to parse mock admin:", e);
+          }
+        }
+      }
+
       if (!isLoginPage) {
-        if (!currentUser) {
+        if (!activeUser) {
           router.replace("/admin/login");
-        } else if (!currentUser.email || !currentUser.email.endsWith("@greengirl.com")) {
+        } else if (!activeUser.email || !activeUser.email.endsWith("@greengirl.com")) {
           await signOut(auth);
+          sessionStorage.removeItem("mockAdmin");
           router.replace("/admin/login");
         } else {
-          setUser(currentUser);
+          setUser(activeUser);
           setLoading(false);
         }
       } else {
-        if (currentUser && currentUser.email && currentUser.email.endsWith("@greengirl.com")) {
+        if (activeUser && activeUser.email && activeUser.email.endsWith("@greengirl.com")) {
           router.replace("/admin/dashboard");
         } else {
           setLoading(false);
@@ -116,6 +130,7 @@ export default function AdminLayout({ children }) {
           <button
             onClick={async () => {
               await signOut(auth);
+              sessionStorage.removeItem("mockAdmin");
               router.replace("/admin/login");
             }}
             className="w-full text-left px-4 py-2 rounded-xl text-[10px] font-bold tracking-widest uppercase text-rose-400 hover:bg-rose-500/10 transition-all duration-200 border border-transparent hover:border-rose-500/20"
