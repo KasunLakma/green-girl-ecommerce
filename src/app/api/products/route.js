@@ -38,7 +38,7 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { name, price, category, description } = body;
+    const { name, price, category, description, colors, sizes, imageAlt } = body;
 
     if (!name || price === undefined || !category) {
       return NextResponse.json(
@@ -60,7 +60,10 @@ export async function POST(request) {
         name,
         price: priceNum,
         category,
-        description
+        description,
+        colors: colors || "",
+        sizes: sizes || "",
+        imageAlt: imageAlt || ""
       }
     });
 

@@ -5,11 +5,18 @@ import { usePathname } from "next/navigation";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
+  const isLoginPage = pathname === "/admin/login";
+
+  if (isLoginPage) {
+    return <div className="min-h-screen w-full bg-[#0D110D]">{children}</div>;
+  }
+
   const menuItems = [
     { name: "Dashboard", href: "/admin/dashboard" },
     { name: "Products", href: "/admin" },
     { name: "Orders", href: "/admin/orders" },
-    { name: "Enquiries", href: "/admin/enquiries" },
+    { name: "Categories", href: "/admin/categories" },
+    { name: "Users", href: "/admin/users" },
   ];
 
   return (
@@ -23,6 +30,24 @@ export default function AdminLayout({ children }) {
               Green Girl Admin
             </h1>
           </div>
+
+          {/* User Profile / Security Configuration Element */}
+          <div className="mx-2 p-4 rounded-xl bg-white/0.02 border border-white/0.05 flex flex-col gap-2.5">
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[10px] font-bold tracking-widest uppercase text-neutral-400">Security Profile</span>
+              <div className="text-xs font-bold text-white tracking-wider">Greengirl Admin</div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#A1B399] animate-pulse" />
+              <span className="text-[9px] font-bold tracking-widest uppercase text-[#B2C4AC]">Role: Super Admin</span>
+            </div>
+
+            <div className="text-[9px] text-neutral-500 font-medium leading-relaxed border-t border-white/0.03 pt-2">
+              Top-Tier Access • Full Control (Inventory, Orders, Support & System Configuration)
+            </div>
+          </div>
+
           <nav className="flex flex-col gap-1.5">
             {menuItems.map((item) => {
               const isActive = pathname === item.href;

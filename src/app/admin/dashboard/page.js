@@ -92,6 +92,64 @@ export default function AdminDashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* Server & Project Management Tracking Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Server & Database Environment Panel */}
+        <div className="bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col gap-4">
+          <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC] mb-1">🖥️ Server & Database Environment</h2>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-black/20 border border-white/0.02">
+              <span className="text-xs text-neutral-300 font-medium">Firebase Auth Server</span>
+              <span className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full text-[9px] font-bold border border-emerald-500/10">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                ONLINE
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-black/20 border border-white/0.02">
+              <span className="text-xs text-neutral-300 font-medium">Core Database Infrastructure</span>
+              <span className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full text-[9px] font-bold border border-emerald-500/10">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                CONNECTED
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-black/20 border border-white/0.02">
+              <span className="text-xs text-neutral-300 font-medium">SSL Encryption Security Layer</span>
+              <span className="bg-[#A1B399]/10 text-[#B2C4AC] px-2.5 py-1 rounded-full text-[9px] font-bold border border-[#A1B399]/15">
+                ACTIVE / SECURE
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Project Deployment Roadmap Panel */}
+        <div className="bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col gap-4">
+          <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC] mb-1">📋 Project Deployment Roadmap</h2>
+          <div className="flex flex-col gap-3">
+            <div className="p-3.5 rounded-xl bg-black/20 border border-white/0.02 flex items-center justify-between gap-4">
+              <div className="flex flex-col gap-1">
+                <span className="text-xs text-neutral-200 font-medium leading-tight">Admin Core Portal Setup & UI Variations Loop</span>
+                <span className="text-[9px] text-neutral-500 uppercase tracking-widest font-bold">Milestone 1</span>
+              </div>
+              <span className="bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full text-[9px] font-bold border border-emerald-500/10 whitespace-nowrap">
+                COMPLETED
+              </span>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-black/20 border border-white/0.02 flex items-center justify-between gap-4">
+              <div className="flex flex-col gap-1">
+                <span className="text-xs text-neutral-200 font-medium leading-tight">Storefront Homepage Interface & Firebase Media Storage Sync</span>
+                <span className="text-[9px] text-neutral-500 uppercase tracking-widest font-bold">Milestone 2</span>
+              </div>
+              <span className="bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded-full text-[9px] font-bold border border-amber-500/10 whitespace-nowrap animate-pulse">
+                IN PROGRESS
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

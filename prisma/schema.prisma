@@ -12,6 +12,9 @@ model Product {
   price       Float
   category    String   // Can store 'Drinks', 'Specials', 'Merch' based on the frontend form select element
   description String?  @db.Text
+  colors      String?  @default("")
+  sizes       String?  @default("")
+  imageAlt    String   @default("")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

@@ -15,7 +15,10 @@ export default function AdminProductsPage() {
     name: "",
     price: "",
     category: "Customized",
-    description: ""
+    description: "",
+    colors: "",
+    sizes: "",
+    imageAlt: ""
   });
 
   // 1. Fetch live products from backend API
@@ -48,7 +51,15 @@ export default function AdminProductsPage() {
 
       if (res.ok) {
         // Reset form and refresh table list immediately
-        setFormData({ name: "", price: "", category: "Customized", description: "" });
+        setFormData({
+          name: "",
+          price: "",
+          category: "Customized",
+          description: "",
+          colors: "",
+          sizes: "",
+          imageAlt: ""
+        });
         await fetchProducts();
       }
     } catch (err) {
@@ -120,6 +131,47 @@ export default function AdminProductsPage() {
             />
           </div>
 
+          {/* Variations Section */}
+          <div className="border-t border-white/0.05 pt-4 flex flex-col gap-4">
+            <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC]">Variations / Attributes</h3>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold tracking-widest uppercase text-neutral-300">Available Colors</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Blue, Red, Black"
+                  value={formData.colors}
+                  onChange={(e) => setFormData({ ...formData, colors: e.target.value })}
+                  className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#A1B399]/40 focus:outline-none transition-all"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold tracking-widest uppercase text-neutral-300">Available Sizes</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Small, Medium, Large"
+                  value={formData.sizes}
+                  onChange={(e) => setFormData({ ...formData, sizes: e.target.value })}
+                  className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#A1B399]/40 focus:outline-none transition-all"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Image SEO Alt Text Section */}
+          <div className="border-t border-white/0.05 pt-4 flex flex-col gap-1.5">
+            <label className="text-[10px] font-bold tracking-widest uppercase text-neutral-300">Image SEO Alt Text *</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Handmade rose bouquet hamper with red roses"
+              value={formData.imageAlt}
+              onChange={(e) => setFormData({ ...formData, imageAlt: e.target.value })}
+              className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#A1B399]/40 focus:outline-none transition-all"
+            />
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -136,16 +188,17 @@ export default function AdminProductsPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-white/0.05 text-[10px] font-bold uppercase tracking-wider text-[#B2C4AC] pb-3">
-                  <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Product Title</th>
+                  <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Gift Title</th>
                   <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Category</th>
                   <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Price</th>
-                  <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Status</th>
+                  <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Variations (Colors/Sizes)</th>
+                  <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">SEO Alt State</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/0.02">
                 {products.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="py-8 text-center text-xs text-neutral-400 italic">No products found. Add your first item.</td>
+                    <td colSpan={5} className="py-8 text-center text-xs text-neutral-400 italic">No products found. Add your first item.</td>
                   </tr>
                 ) : (
                   products.map((product) => (
@@ -155,10 +208,20 @@ export default function AdminProductsPage() {
                         {CATEGORY_MAP[product.category] || product.category}
                       </td>
                       <td className="py-3.5 text-xs font-medium text-neutral-200">Rs. {product.price.toLocaleString()}</td>
+                      <td className="py-3.5 text-xs text-neutral-300">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-[10px] text-neutral-400">Colors: {product.colors || "N/A"}</span>
+                          <span className="text-[10px] text-neutral-400">Sizes: {product.sizes || "N/A"}</span>
+                        </div>
+                      </td>
                       <td className="py-3.5 text-xs">
-                        <span className="bg-[#A1B399]/10 text-[#B2C4AC] px-2.5 py-1 rounded-full text-[10px] font-bold border border-[#A1B399]/10">
-                          • Active
-                        </span>
+                        {product.imageAlt ? (
+                          <span className="bg-[#A1B399]/10 text-[#B2C4AC] px-2.5 py-1 rounded-full text-[9px] font-bold border border-[#A1B399]/10 max-w-[150px] inline-block truncate" title={product.imageAlt}>
+                            {product.imageAlt}
+                          </span>
+                        ) : (
+                          <span className="text-neutral-500 italic text-[10px]">Missing Alt</span>
+                        )}
                       </td>
                     </tr>
                   ))
