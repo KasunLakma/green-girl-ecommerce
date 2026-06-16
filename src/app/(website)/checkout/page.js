@@ -10,13 +10,21 @@ import {
   Truck, 
   Lock, 
   UserPlus, 
-  ShoppingBag 
+  ShoppingBag,
+  Banknote
 } from "lucide-react";
 import Link from "next/link";
+import { useCart } from "../layout";
+import { db, auth } from "../../../lib/firebase";
+import { collection, addDoc } from "firebase/firestore";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
 export default function CheckoutPage() {
+  const { cart = [], clearCart } = useCart();
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderId, setOrderId] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,42 +32,99 @@ export default function CheckoutPage() {
     address: ""
   });
 
-  const handleSubmit = (e) => {
+  const checkoutItems = cart.length > 0 ? cart : [
+    {
+      id: "1",
+      name: "Stitch Cute Plush Toy",
+      category: "Toys & Teddies",
+      price: 2400,
+      image: "/images/stitch_toy.png",
+      qty: 1
+    }
+  ];
+
+  const subtotal = checkoutItems.reduce((acc, item) => {
+    const itemPrice = typeof item.price === "number" 
+      ? item.price 
+      : parseInt(String(item.price).replace(/[^0-9]/g, "")) || 0;
+    return acc + (itemPrice * (item.qty || 1));
+  }, 0);
+  
+  const shipping = 350;
+  const grandTotal = subtotal + shipping;
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.phone || !formData.address) {
       alert("Please fill in all the required delivery fields.");
       return;
     }
-    setIsSubmitted(true);
+    
+    setIsSubmitting(true);
+
+    try {
+      // 1. Resolve firebase authentication (register user if first purchase)
+      let user = auth.currentUser;
+      if (!user) {
+        try {
+          const userCredential = await createUserWithEmailAndPassword(auth, formData.email, "WelcomeToGreengirl123!");
+          user = userCredential.user;
+        } catch (authError) {
+          if (authError.code === "auth/email-already-in-use") {
+            try {
+              const userCredential = await signInWithEmailAndPassword(auth, formData.email, "WelcomeToGreengirl123!");
+              user = userCredential.user;
+            } catch (signInError) {
+              console.error("Sign in failed, linking order by email instead:", signInError);
+            }
+          } else {
+            console.error("Auth creation failed:", authError);
+          }
+        }
+      }
+
+      // 2. Save the order receipt data directly to Firestore
+      const newOrderId = `ORD-${Math.floor(100000 + Math.random() * 900000)}`;
+      const orderData = {
+        orderId: newOrderId,
+        userId: user ? user.uid : formData.email,
+        customerName: formData.name,
+        customerEmail: formData.email,
+        customerPhone: formData.phone,
+        customerAddress: formData.address,
+        paymentMethod: paymentMethod,
+        items: checkoutItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          category: item.category || "Customized Gifts",
+          price: item.price,
+          qty: item.qty || 1,
+          image: item.image || ""
+        })),
+        totalAmount: grandTotal,
+        shippingStatus: "Pending Approval",
+        createdAt: new Date().toISOString()
+      };
+
+      await addDoc(collection(db, "orders"), orderData);
+      setOrderId(newOrderId);
+      
+      // Clear cart
+      if (clearCart) {
+        clearCart();
+      }
+
+      setIsSubmitted(true);
+    } catch (err) {
+      console.error("Checkout submission failed:", err);
+      alert("An error occurred while processing your order. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const paymentOptions = [
-    {
-      id: "cod",
-      title: "Cash On Delivery (COD) - Pay upon receipt",
-      description: "Pay with cash when your luxury parcel is safely delivered to your doorstep. Free and mandatory for custom arrangements.",
-      badge: "RECOMMENDED",
-      disabled: false
-    },
-    {
-      id: "card",
-      title: "Visa / Mastercard Credit Card",
-      description: "Secure electronic payment. Credit card authorization gateway is currently undergoing security compliance validation.",
-      badge: "TEMPORARILY OFFLINE",
-      disabled: true
-    },
-    {
-      id: "koko",
-      title: "Koko - Split into 3 interest-free payments",
-      description: "Buy now and split the invoice total into 3 monthly interest-free payments.",
-      badge: "TEMPORARILY OFFLINE",
-      disabled: true
-    }
-  ];
-
   return (
-    <div className="min-h-screen w-full bg-[#0D110D] text-white pt-32 pb-20 px-4 relative overflow-x-hidden">
-      
+    <div className="min-h-screen w-full bg-[#050705] text-white pt-32 pb-20 px-4 relative overflow-x-hidden">
       {/* Background radial gradient glow matching brand aesthetics */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120vw] h-[60vh] bg-gradient-to-b from-[#354236]/30 via-transparent to-transparent blur-[120px] pointer-events-none z-0" />
 
@@ -151,59 +216,90 @@ export default function CheckoutPage() {
                   </form>
                 </div>
 
-                {/* Payment Method Selector */}
                 <div className="hype-glass p-6 sm:p-8 border border-white/0.05 flex flex-col gap-6">
                   <div className="flex flex-col gap-1">
                     <h2 className="text-lg font-bold tracking-tight text-white uppercase">Payment Method</h2>
                     <p className="text-xs text-neutral-400">Select how you want to complete your invoice payment.</p>
                   </div>
 
-                  <div className="flex flex-col gap-4">
-                    {paymentOptions.map((option) => (
-                      <div 
-                        key={option.id}
-                        onClick={() => {
-                          if (!option.disabled) setPaymentMethod(option.id);
-                        }}
-                        className={`p-4 rounded-2xl border transition-all duration-300 flex items-start gap-4 relative overflow-hidden ${
-                          option.disabled 
-                            ? "bg-white/[0.01] border-white/0.02 opacity-40 cursor-not-allowed" 
-                            : paymentMethod === option.id 
-                              ? "bg-[#B2C4AC]/5 border-[#B2C4AC] shadow-[0_0_15px_rgba(178,196,172,0.1)] cursor-pointer" 
-                              : "bg-white/[0.02] border-white/0.05 hover:border-white/10 cursor-pointer"
-                        }`}
-                      >
-                        {/* Selector Indicator */}
-                        <div className="mt-1 flex items-center justify-center flex-shrink-0">
-                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                            paymentMethod === option.id && !option.disabled
-                              ? "border-[#B2C4AC]" 
-                              : "border-neutral-600"
-                          }`}>
-                            {paymentMethod === option.id && !option.disabled && (
-                              <div className="w-2 h-2 rounded-full bg-[#B2C4AC]" />
-                            )}
-                          </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Card 1: Cash On Delivery (COD) */}
+                    <div 
+                      onClick={() => setPaymentMethod("cod")}
+                      className={`p-5 rounded-2xl border transition-all duration-300 flex flex-col justify-between gap-4 cursor-pointer relative overflow-hidden h-full ${
+                        paymentMethod === "cod" 
+                          ? "bg-[#B2C4AC]/10 border-[#B2C4AC] shadow-[0_0_15px_rgba(178,196,172,0.15)]" 
+                          : "bg-white/[0.02] border-white/0.05 hover:border-white/15"
+                      }`}
+                    >
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-bold text-white tracking-tight uppercase">Cash On Delivery</span>
+                          <Banknote className={`w-5 h-5 ${paymentMethod === "cod" ? "text-[#B2C4AC]" : "text-neutral-400"}`} />
                         </div>
-
-                        {/* Text */}
-                        <div className="flex flex-col gap-1 pr-16">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-xs font-bold text-white tracking-tight">{option.title}</span>
-                            {option.badge && (
-                              <span className={`text-[8px] font-bold px-2 py-0.5 rounded-full border ${
-                                option.id === "cod"
-                                  ? "bg-[#B2C4AC]/10 border-[#B2C4AC]/20 text-[#B2C4AC]" 
-                                  : "bg-neutral-800 border-neutral-700 text-neutral-500"
-                              }`}>
-                                {option.badge}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-[10px] text-neutral-400 leading-relaxed">{option.description}</p>
-                        </div>
+                        <p className="text-[10px] text-neutral-400 leading-relaxed">
+                          Pay with cash upon package receipt. <span className="text-[#B2C4AC] font-bold">(Recommended)</span>
+                        </p>
                       </div>
-                    ))}
+                      <div className="flex items-center gap-2 mt-2">
+                        <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${paymentMethod === "cod" ? "border-[#B2C4AC]" : "border-neutral-600"}`}>
+                          {paymentMethod === "cod" && <div className="w-1.5 h-1.5 rounded-full bg-[#B2C4AC]" />}
+                        </div>
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-neutral-400">Select</span>
+                      </div>
+                    </div>
+
+                    {/* Card 2: Visa / Mastercard */}
+                    <div 
+                      onClick={() => setPaymentMethod("card")}
+                      className={`p-5 rounded-2xl border transition-all duration-300 flex flex-col justify-between gap-4 cursor-pointer relative overflow-hidden h-full ${
+                        paymentMethod === "card" 
+                          ? "bg-[#B2C4AC]/10 border-[#B2C4AC] shadow-[0_0_15px_rgba(178,196,172,0.15)]" 
+                          : "bg-white/[0.02] border-white/0.05 hover:border-white/15"
+                      }`}
+                    >
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-bold text-white tracking-tight uppercase">Visa / Mastercard</span>
+                          <CreditCard className={`w-5 h-5 ${paymentMethod === "card" ? "text-[#B2C4AC]" : "text-neutral-400"}`} />
+                        </div>
+                        <p className="text-[10px] text-neutral-400 leading-relaxed">
+                          Secure online payment via credit or debit cards.
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${paymentMethod === "card" ? "border-[#B2C4AC]" : "border-neutral-600"}`}>
+                          {paymentMethod === "card" && <div className="w-1.5 h-1.5 rounded-full bg-[#B2C4AC]" />}
+                        </div>
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-neutral-400">Select</span>
+                      </div>
+                    </div>
+
+                    {/* Card 3: Koko - Split Payment */}
+                    <div 
+                      onClick={() => setPaymentMethod("koko")}
+                      className={`p-5 rounded-2xl border transition-all duration-300 flex flex-col justify-between gap-4 cursor-pointer relative overflow-hidden h-full ${
+                        paymentMethod === "koko" 
+                          ? "bg-[#B2C4AC]/10 border-[#B2C4AC] shadow-[0_0_15px_rgba(178,196,172,0.15)]" 
+                          : "bg-white/[0.02] border-white/0.05 hover:border-white/15"
+                      }`}
+                    >
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-bold text-white tracking-tight uppercase">Koko - Split Payment</span>
+                          <span className={`text-[10px] font-black tracking-widest ${paymentMethod === "koko" ? "text-emerald-400" : "text-neutral-400"}`}>KOKO</span>
+                        </div>
+                        <p className="text-[10px] text-neutral-400 leading-relaxed">
+                          Split your order into 3 interest-free payments.
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${paymentMethod === "koko" ? "border-[#B2C4AC]" : "border-neutral-600"}`}>
+                          {paymentMethod === "koko" && <div className="w-1.5 h-1.5 rounded-full bg-[#B2C4AC]" />}
+                        </div>
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-neutral-400">Select</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -214,46 +310,50 @@ export default function CheckoutPage() {
                   <h2 className="text-sm font-extrabold tracking-[0.2em] uppercase text-white pb-3 border-b border-white/0.05">Order Summary</h2>
                   
                   {/* Order items stack list */}
-                  <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-4">
-                      {/* Product Thumbnail */}
-                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-black/40 border border-white/0.05 flex-shrink-0">
-                        <img 
-                          src="/images/stitch_toy.png" 
-                          alt="Stitch Cute Plush Toy" 
-                          className="w-full h-full object-cover" 
-                        />
-                      </div>
-                      
-                      {/* Item Details */}
-                      <div className="flex-1 min-w-0">
-                        <span className="text-[8px] font-bold tracking-widest text-[#B2C4AC] uppercase">Toys & Teddies</span>
-                        <h4 className="text-[11px] font-bold text-white truncate">Stitch Cute Plush Toy</h4>
-                        <span className="text-[10px] text-neutral-400">Qty: 1</span>
-                      </div>
+                  <div className="flex flex-col gap-4 max-h-48 overflow-y-auto pr-1">
+                    {checkoutItems.map((item, idx) => (
+                      <div key={item.id || idx} className="flex items-center gap-4 py-2 border-b border-white/0.03 last:border-b-0">
+                        {/* Product Thumbnail */}
+                        <div className="w-12 h-12 rounded-lg overflow-hidden bg-black/40 border border-white/0.05 flex-shrink-0">
+                          <img 
+                            src={item.image || "/images/stitch_toy.png"} 
+                            alt={item.name} 
+                            className="w-full h-full object-cover" 
+                          />
+                        </div>
+                        
+                        {/* Item Details */}
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[8px] font-bold tracking-widest text-[#B2C4AC] uppercase">{item.category || "Boutique"}</span>
+                          <h4 className="text-[11px] font-bold text-white truncate">{item.name}</h4>
+                          <span className="text-[10px] text-neutral-400">Qty: {item.qty || 1}</span>
+                        </div>
 
-                      {/* Price */}
-                      <span className="text-xs font-bold text-white">Rs. 2,400</span>
-                    </div>
+                        {/* Price */}
+                        <span className="text-xs font-bold text-white">
+                          Rs. {(typeof item.price === "number" ? item.price : parseInt(String(item.price).replace(/[^0-9]/g, "")) || 0).toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
                   </div>
 
                   {/* Calculations breakdown */}
                   <div className="flex flex-col gap-3 border-t border-white/0.05 pt-4 text-xs">
                     <div className="flex items-center justify-between text-neutral-400">
                       <span>Subtotal</span>
-                      <span>Rs. 2,400</span>
+                      <span>Rs. {subtotal.toLocaleString()}</span>
                     </div>
                     
                     <div className="flex items-center justify-between text-neutral-400">
                       <span className="flex items-center gap-1.5">
                         <Truck className="w-3.5 h-3.5 text-[#B2C4AC]" /> Islandwide Premium Delivery
                       </span>
-                      <span>Rs. 350</span>
+                      <span>Rs. {shipping.toLocaleString()}</span>
                     </div>
 
                     <div className="flex items-center justify-between border-t border-white/0.05 pt-4 text-sm font-bold text-white">
                       <span>Grand Total</span>
-                      <span className="text-base text-[#B2C4AC] font-black">Rs. 2,750</span>
+                      <span className="text-base text-[#B2C4AC] font-black">Rs. {grandTotal.toLocaleString()}</span>
                     </div>
                   </div>
 
@@ -268,9 +368,16 @@ export default function CheckoutPage() {
                   <button 
                     type="submit"
                     form="checkout-delivery-form"
-                    className="w-full py-4 bg-[#B2C4AC] text-[#0D110D] hover:bg-[#A1B399] rounded-full font-black text-xs tracking-[0.2em] uppercase transition-all duration-300 shadow-[0_0_20px_rgba(178,196,172,0.2)] hover:shadow-[0_0_35px_rgba(178,196,172,0.5)] active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                    disabled={isSubmitting}
+                    className="w-full py-4 bg-[#B2C4AC] disabled:opacity-50 text-[#0D110D] hover:bg-[#A1B399] rounded-full font-black text-xs tracking-[0.2em] uppercase transition-all duration-300 shadow-[0_0_20px_rgba(178,196,172,0.2)] hover:shadow-[0_0_35px_rgba(178,196,172,0.5)] active:scale-98 cursor-pointer flex items-center justify-center gap-2"
                   >
-                    PLACE ORDER VIA CASH ON DELIVERY
+                    {isSubmitting ? "PROCESSING TRANSACTION..." : (
+                      <>
+                        {paymentMethod === "cod" && "PLACE ORDER VIA CASH ON DELIVERY"}
+                        {paymentMethod === "card" && "PAY VIA VISA / MASTERCARD"}
+                        {paymentMethod === "koko" && "SPLIT PAY VIA KOKO"}
+                      </>
+                    )}
                   </button>
                 </div>
 
@@ -310,12 +417,16 @@ export default function CheckoutPage() {
               <div className="w-full flex flex-col gap-3 bg-black/35 border border-white/0.02 p-4 rounded-2xl text-left text-xs text-neutral-300">
                 <div className="flex items-center justify-between border-b border-white/0.05 pb-2">
                   <span className="text-[10px] font-bold uppercase text-neutral-500">Order ID Reference</span>
-                  <span className="font-mono font-bold text-white">ORD-9285</span>
+                  <span className="font-mono font-bold text-white">{orderId}</span>
                 </div>
 
                 <div className="flex items-center justify-between border-b border-white/0.05 pb-2">
                   <span className="text-[10px] font-bold uppercase text-neutral-500">Method selected</span>
-                  <span className="text-[#B2C4AC] font-bold">Cash On Delivery (COD)</span>
+                  <span className="text-[#B2C4AC] font-bold">
+                    {paymentMethod === "cod" && "Cash On Delivery (COD)"}
+                    {paymentMethod === "card" && "Visa / Mastercard"}
+                    {paymentMethod === "koko" && "Koko - Split Payment"}
+                  </span>
                 </div>
 
                 <div className="flex items-center justify-between border-b border-white/0.05 pb-2">
@@ -326,15 +437,21 @@ export default function CheckoutPage() {
                 <div className="flex items-start gap-2 pt-1 text-[10px] text-neutral-450 leading-relaxed">
                   <UserPlus className="w-4 h-4 text-[#B2C4AC] flex-shrink-0 mt-0.5" />
                   <span>
-                    An automatic profile has been initialized for this email. Check your inbox for security credentials and tracking links.
+                    An automatic profile has been initialized for this email. You can check your orders in the Customer Profile page.
                   </span>
                 </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 w-full mt-2">
                 <Link 
-                  href="/"
+                  href="/profile"
                   className="flex-1 py-3.5 bg-[#B2C4AC] text-[#0D110D] hover:bg-[#A1B399] rounded-full font-black text-xs tracking-widest uppercase transition-all duration-300 active:scale-95 text-center cursor-pointer"
+                >
+                  View Profile & Track Order
+                </Link>
+                <Link 
+                  href="/"
+                  className="flex-1 py-3.5 border border-white/10 hover:bg-white/5 rounded-full font-black text-xs tracking-widest uppercase transition-all duration-300 active:scale-95 text-center cursor-pointer"
                 >
                   Continue Shopping
                 </Link>

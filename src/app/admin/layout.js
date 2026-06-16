@@ -1,11 +1,54 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "../../lib/firebase";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+
   const isLoginPage = pathname === "/admin/login";
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!isLoginPage) {
+        if (!currentUser) {
+          router.replace("/admin/login");
+        } else if (!currentUser.email || !currentUser.email.endsWith("@greengirl.com")) {
+          await signOut(auth);
+          router.replace("/admin/login");
+        } else {
+          setUser(currentUser);
+          setLoading(false);
+        }
+      } else {
+        if (currentUser && currentUser.email && currentUser.email.endsWith("@greengirl.com")) {
+          router.replace("/admin/dashboard");
+        } else {
+          setLoading(false);
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, [pathname, isLoginPage, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#050705] text-[#B2C4AC]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-2 border-[#B2C4AC]/20 border-t-[#B2C4AC] rounded-full animate-spin" />
+          <p className="text-[10px] uppercase tracking-[0.25em] font-bold animate-pulse text-neutral-400">
+            Verifying Credentials...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoginPage) {
     return <div className="min-h-screen w-full bg-[#0D110D]">{children}</div>;
@@ -35,7 +78,9 @@ export default function AdminLayout({ children }) {
           <div className="mx-2 p-4 rounded-xl bg-white/0.02 border border-white/0.05 flex flex-col gap-2.5">
             <div className="flex flex-col gap-0.5">
               <span className="text-[10px] font-bold tracking-widest uppercase text-neutral-400">Security Profile</span>
-              <div className="text-xs font-bold text-white tracking-wider">Greengirl Admin</div>
+              <div className="text-xs font-bold text-white tracking-wider truncate">
+                {user?.email || "Greengirl Admin"}
+              </div>
             </div>
             
             <div className="flex items-center gap-2">
@@ -67,8 +112,19 @@ export default function AdminLayout({ children }) {
             })}
           </nav>
         </div>
-        <div className="px-4 py-2 border-t border-white/0.05 text-[10px] text-neutral-300 font-medium tracking-widest uppercase">
-          System Live • v1.0
+        <div className="flex flex-col gap-3 px-2 py-4 border-t border-white/0.05">
+          <button
+            onClick={async () => {
+              await signOut(auth);
+              router.replace("/admin/login");
+            }}
+            className="w-full text-left px-4 py-2 rounded-xl text-[10px] font-bold tracking-widest uppercase text-rose-400 hover:bg-rose-500/10 transition-all duration-200 border border-transparent hover:border-rose-500/20"
+          >
+            Sign Out
+          </button>
+          <div className="px-4 text-[9px] text-neutral-500 font-bold tracking-widest uppercase">
+            System Live • v1.0
+          </div>
         </div>
       </aside>
 

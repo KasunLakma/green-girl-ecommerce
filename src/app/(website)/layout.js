@@ -40,7 +40,6 @@ export default function WebsiteLayout({ children }) {
           item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      // Parse numerical value from price string (e.g. "Rs. 2,400" -> 2400)
       const priceNum = parseInt(product.price.replace(/[^\d]/g, ""), 10) || 0;
       return [
         ...prevItems,
@@ -83,68 +82,79 @@ export default function WebsiteLayout({ children }) {
 
   return (
     <CartContext.Provider value={{ cartItems, cartCount, cartTotal, addToCart, updateQuantity, removeFromCart, cartOpen, setCartOpen }}>
-      <div className="relative min-h-screen w-full flex flex-col bg-[#0D110D]">
+      {/* Root layout container safely allowing pointer events to pass down */}
+      <div className="relative min-h-screen w-full flex flex-col bg-[#0D110D] overflow-x-hidden pointer-events-auto">
         
-        {/* Floating Navigation Overlay */}
-        <header className="fixed top-6 left-0 right-0 z-40 w-full max-w-5xl mx-auto px-4">
-          <div className="backdrop-blur-md bg-[#0D110D]/35 border border-white/[0.08] px-6 sm:px-8 py-3 rounded-full flex items-center justify-between shadow-[0_12px_40px_rgba(0,0,0,0.7)]">
-            {/* Logo */}
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6E856A] to-[#B2C4AC] flex items-center justify-center shadow-[0_0_12px_rgba(178,196,172,0.4)]">
-                <span className="text-[#0D110D] font-extrabold text-sm tracking-tighter">GG</span>
+        {/* Full-Width Fixed Header Overlay - z-[100] and w-full float */}
+        <header className="fixed top-0 left-0 w-full z-[100] pointer-events-auto">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div className="w-full backdrop-blur-md bg-[#0D110D]/35 border border-white/[0.08] px-6 sm:px-8 py-3 rounded-full flex items-center justify-between shadow-[0_12px_40px_rgba(0,0,0,0.7)]">
+              {/* Logo */}
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6E856A] to-[#B2C4AC] flex items-center justify-center shadow-[0_0_12px_rgba(178,196,172,0.4)]">
+                  <span className="text-[#0D110D] font-extrabold text-sm tracking-tighter">GG</span>
+                </div>
+                <span className="text-xs font-bold tracking-[0.2em] uppercase text-white">GREEN GIRL</span>
               </div>
-              <span className="text-xs font-bold tracking-[0.2em] uppercase text-white">GREEN GIRL</span>
-            </div>
 
-            {/* Navigation Links */}
-            <nav className="hidden md:flex items-center gap-8">
-              {navItems.map((item) => (
-                <button
-                  key={item}
-                  onClick={() => setActiveTab(item)}
-                  className="relative py-1 text-[10px] font-bold tracking-[0.2em] uppercase text-neutral-400 hover:text-white transition-colors duration-250 cursor-pointer active:scale-95 group"
+              {/* Navigation Links */}
+              <nav className="hidden md:flex items-center gap-8">
+                {navItems.map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => {
+                      setActiveTab(item);
+                      if (item === "HOME") {
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      } else {
+                        const el = document.getElementById(item.toLowerCase());
+                        if (el) el.scrollIntoView({ behavior: "smooth" });
+                      }
+                    }}
+                    className="relative py-1 text-[10px] font-bold tracking-[0.2em] uppercase text-neutral-400 hover:text-white transition-colors duration-250 cursor-pointer active:scale-95 group"
+                  >
+                    <span className="relative z-10">{item}</span>
+                    {activeTab === item ? (
+                      <motion.span 
+                        layoutId="activeNavLine"
+                        className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#B2C4AC] shadow-[0_0_10px_rgba(178,196,172,0.8)]"
+                        transition={{ type: "spring", stiffness: 180, damping: 20 }}
+                      />
+                    ) : (
+                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-[#B2C4AC]/40 group-hover:w-full transition-all duration-300" />
+                    )}
+                  </button>
+                ))}
+              </nav>
+
+              {/* Cart Trigger */}
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setCartOpen(true)}
+                  className="relative p-2.5 rounded-full hover:bg-white/5 border border-white/0.05 transition-colors cursor-pointer group active:scale-95"
                 >
-                  <span className="relative z-10">{item}</span>
-                  {activeTab === item ? (
+                  <ShoppingBag className="w-4 h-4 text-white group-hover:text-[#B2C4AC] transition-colors" />
+                  {cartCount > 0 && (
                     <motion.span 
-                      layoutId="activeNavLine"
-                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#B2C4AC] shadow-[0_0_10px_rgba(178,196,172,0.8)]"
-                      transition={{ type: "spring", stiffness: 180, damping: 20 }}
-                    />
-                  ) : (
-                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-[#B2C4AC]/40 group-hover:w-full transition-all duration-300" />
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-1 -right-1 w-4 h-4 bg-[#B2C4AC] text-[#0D110D] text-[8px] font-black rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(178,196,172,0.6)]"
+                    >
+                      {cartCount}
+                    </motion.span>
                   )}
                 </button>
-              ))}
-            </nav>
-
-            {/* Cart Trigger */}
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => setCartOpen(true)}
-                className="relative p-2.5 rounded-full hover:bg-white/5 border border-white/0.05 transition-colors cursor-pointer group active:scale-95"
-              >
-                <ShoppingBag className="w-4 h-4 text-white group-hover:text-[#B2C4AC] transition-colors" />
-                {cartCount > 0 && (
-                  <motion.span 
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 w-4 h-4 bg-[#B2C4AC] text-[#0D110D] text-[8px] font-black rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(178,196,172,0.6)]"
-                  >
-                    {cartCount}
-                  </motion.span>
-                )}
-              </button>
+              </div>
             </div>
           </div>
         </header>
 
-        {/* Children Render */}
-        <main className="flex-1 w-full">
+        {/* Children Render - Clean flexbox flow */}
+        <main className="flex-1 w-full relative pointer-events-auto">
           {children}
         </main>
 
-        {/* Cart Drawer */}
+        {/* Cart Drawer - High-priority overlays z-[200] */}
         <AnimatePresence>
           {cartOpen && (
             <>
@@ -154,7 +164,7 @@ export default function WebsiteLayout({ children }) {
                 animate={{ opacity: 0.6 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setCartOpen(false)}
-                className="fixed inset-0 z-50 bg-black backdrop-blur-sm"
+                className="fixed inset-0 z-[200] bg-black backdrop-blur-sm"
               />
 
               {/* Drawer Panel */}
@@ -163,7 +173,7 @@ export default function WebsiteLayout({ children }) {
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ type: "spring", damping: 26, stiffness: 220 }}
-                className="fixed top-0 right-0 h-full w-full max-w-md bg-[#0B0E0B] border-l border-white/0.05 p-6 backdrop-blur-xl z-50 shadow-2xl flex flex-col justify-between"
+                className="fixed top-0 right-0 h-full w-full max-w-md bg-[#0B0E0B] border-l border-white/0.05 p-6 backdrop-blur-xl z-[200] shadow-2xl flex flex-col justify-between"
               >
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-white/0.05 pb-5">
@@ -249,7 +259,7 @@ export default function WebsiteLayout({ children }) {
                   <button 
                     disabled={cartItems.length === 0}
                     onClick={() => {
-                      alert("Redirecting to premium secure checkout page...");
+                      setCartOpen(false);
                       window.location.href = "/checkout";
                     }}
                     className={`w-full py-4 rounded-full font-black text-xs tracking-[0.2em] uppercase transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer ${

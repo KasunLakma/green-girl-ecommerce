@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Sparkles, 
@@ -14,63 +14,96 @@ import {
   X
 } from "lucide-react";
 import { useCart } from "./layout";
+import { useRouter } from "next/navigation";
+import { db } from "../../lib/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 export default function StorefrontPage() {
   const { addToCart } = useCart();
+  const router = useRouter();
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [likedProducts, setLikedProducts] = useState({});
   const [hoveredProduct, setHoveredProduct] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
-  const products = [
+  const staticProducts = [
     {
-      id: 1,
+      id: "1",
       name: "Stitch Cute Plush Toy",
       category: "Toys & Teddies",
-      price: "Rs. 2,400",
+      price: 2400,
       image: "/images/stitch_toy.png",
-      alt: "Premium soft-stuffed Stitch cute plush toy displayed on a luxury boutique display shelf",
       tag: "TRENDING",
       rating: 4.9,
       description: "A super soft, premium quality Stitch plush toy. Crafted with extra plush materials and fine detailed stitching, making it the perfect luxury gift for Disney collectors and children alike."
     },
     {
-      id: 2,
+      id: "2",
       name: "Customized Ceramic Mug + Gift Box",
       category: "Customized Gifts",
-      price: "Rs. 1,950",
+      price: 1950,
       image: "/images/custom_mug.png",
-      alt: "Elegantly customized ceramic mug placed next to a luxury black gift box with gold foil lettering",
       tag: "EXQUISITE",
       rating: 4.8,
       description: "Matte-finished customized ceramic mug packaged in an elegant, signature dark gift box. Perfect for coffee lovers, workspace decor, or a high-quality personalized gift."
     },
     {
-      id: 3,
+      id: "3",
       name: "Handmade Rose Bouquet Hamper",
       category: "Gift Hampers",
-      price: "Rs. 4,500",
+      price: 4500,
       image: "/images/rose_hamper.png",
-      alt: "Luxury gift hamper featuring a handmade premium red and pink rose arrangement inside a dark boutique gift box",
       tag: "POPULAR",
       rating: 5.0,
       description: "A premium floral arrangement featuring handmade, selected red and pink roses beautifully displayed inside a dark boutique gift box, accompanied by custom gift treats."
     }
   ];
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "products"));
+        const items = [];
+        querySnapshot.forEach((doc) => {
+          items.push({ id: doc.id, ...doc.data() });
+        });
+        if (items.length > 0) {
+          setProducts(items);
+        } else {
+          setProducts(staticProducts);
+        }
+      } catch (error) {
+        console.error("Error fetching products from Firestore:", error);
+        setProducts(staticProducts);
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
   return (
     <div className="relative z-10 min-h-screen w-full flex flex-col select-none overflow-x-hidden bg-[#0D110D]">
+      <head>
+        <title>Green Girl — Luxury Gift Shop & Bespoke Hampers Sri Lanka</title>
+        <meta name="description" content="Premium dark luxury storefront curating ceramic art, custom wooden crate gift hampers, and plush toys in Sri Lanka." />
+        <meta name="keywords" content="luxury gifts, hampers, flowers, custom gifts, colombo, sri lanka, greengirl" />
+        <meta property="og:title" content="Green Girl — Luxury Gift Shop & Bespoke Hampers Sri Lanka" />
+        <meta property="og:description" content="Premium dark luxury storefront curating ceramic art, custom wooden crate gift hampers, and plush toys in Sri Lanka." />
+        <meta property="og:image" content="/hero-gift-shop.jpg" />
+      </head>
       
       {/* Interactive Hero Banner Section */}
       <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center pt-28 px-4 overflow-hidden">
         {/* Ambient glowing canvas behind */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/images/hero_banner.png" 
-            alt="Green Girl Luxury Boutique Banner" 
-            className="w-full h-full object-cover opacity-35 brightness-75 saturate-75 scale-105" 
+          <div 
+            style={{ backgroundImage: "url('/hero-gift-shop.jpg')" }}
+            className="w-full h-full bg-cover bg-center scale-105" 
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0D110D]/60 via-[#0D110D]/40 to-[#0D110D]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0D110D]/80 via-transparent to-[#0D110D]/80" />
+          <div className="absolute inset-0 bg-[#050705]/55" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0D110D]" />
         </div>
 
         <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center text-center">
@@ -93,7 +126,7 @@ export default function StorefrontPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.8 }}
-              className="hype-glass px-6 py-4 max-w-2xl mx-auto border border-white/0.08 shadow-[0_8px_32px_rgba(0,0,0,0.5)] text-sm sm:text-base text-neutral-300 font-medium tracking-wide leading-relaxed"
+              className="hype-glass px-6 py-4 max-w-2xl mx-auto border border-white/0.08 shadow-[0_8px_32px_rgba(0,0,0,0.5)] text-sm sm:text-base text-neutral-350 font-medium tracking-wide leading-relaxed"
             >
               Discover a curated selection of luxury boutique gift items, matte ceramics, rare flora, and custom-crafted hampers made for the discerning collector.
             </motion.div>
@@ -106,7 +139,7 @@ export default function StorefrontPage() {
             >
               <button 
                 onClick={() => {
-                  const el = document.getElementById("featured-collection");
+                  const el = document.getElementById("collections");
                   el?.scrollIntoView({ behavior: "smooth" });
                 }}
                 className="group relative px-8 py-4 bg-[#B2C4AC] text-[#0D110D] rounded-full font-bold tracking-[0.2em] text-[10px] uppercase shadow-[0_0_20px_rgba(178,196,172,0.3)] hover:shadow-[0_0_35px_rgba(178,196,172,0.65)] hover:bg-[#A1B399] active:scale-95 transition-all duration-300 flex items-center gap-2.5 cursor-pointer"
@@ -120,7 +153,7 @@ export default function StorefrontPage() {
       </section>
 
       {/* Boutique Values Row */}
-      <section className="relative w-full max-w-5xl mx-auto px-4 py-16">
+      <section id="specials" className="relative w-full max-w-5xl mx-auto px-4 py-16 scroll-mt-24">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="hype-glass p-6 border border-white/0.05 flex flex-col gap-4 hover:border-white/15 transition-all duration-300 group">
             <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-[#B2C4AC]/10 group-hover:border-[#B2C4AC]/30 transition-all">
@@ -153,7 +186,7 @@ export default function StorefrontPage() {
       </section>
 
       {/* Featured List / New Collection Grid */}
-      <section id="featured-collection" className="relative w-full max-w-5xl mx-auto px-4 py-20 scroll-mt-24">
+      <section id="collections" className="relative w-full max-w-5xl mx-auto px-4 py-20 scroll-mt-24">
         {/* Title Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="flex flex-col gap-2">
@@ -164,123 +197,157 @@ export default function StorefrontPage() {
             </p>
           </div>
           <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-semibold border-b border-white/10 pb-1 self-start md:self-auto">
-            Showing 3 of 3 items
+            Showing {products.length} items
           </span>
         </div>
 
         {/* Grid Loop */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.map((product, index) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.8, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}
-              onMouseEnter={() => setHoveredProduct(product.id)}
-              onMouseLeave={() => setHoveredProduct(null)}
-              className="hype-glass p-4 rounded-[2rem] flex flex-col justify-between group cursor-pointer transition-all duration-500 hover:border-white/15 hover:shadow-[0_24px_50px_rgba(0,0,0,0.7)] border border-white/0.05"
-            >
-              {/* Card Body wrapper */}
-              <div className="flex flex-col gap-4">
-                {/* Image visual wrapper */}
-                <div className="overflow-hidden rounded-2xl relative aspect-[4/3] bg-black/40 border border-white/[0.04]">
-                  <img 
-                    src={product.image} 
-                    alt={product.alt} 
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
-                  />
-                  {/* Tag overlay */}
-                  <div className="absolute top-3 left-3 bg-[#0D110D]/75 backdrop-blur-md border border-white/10 px-3 py-1 rounded-full text-[9px] font-black tracking-widest text-[#B2C4AC] uppercase shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
-                    {product.tag}
+          {products.map((product, index) => {
+            const productName = product.name || product.title || "Luxury Gift Item";
+            const productPrice = typeof product.price === "number" ? `Rs. ${product.price.toLocaleString()}` : (product.price || "Rs. 0");
+            const productImage = product.image || product.imageUrl || "/images/rose_hamper.png";
+            const productAlt = product.alt || product.imageAlt || `${productName} - Luxury Gift Box wrapping by Greengirl Sri Lanka`;
+            const productCategory = product.category || "Customized Gifts";
+            const productTag = product.tag || "PREMIUM";
+            const productRating = product.rating || 5.0;
+            const productDescription = product.description || "Bespoke custom-crafted luxury gift item.";
+
+            return (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 60 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.8, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}
+                onMouseEnter={() => setHoveredProduct(product.id)}
+                onMouseLeave={() => setHoveredProduct(null)}
+                onClick={() => router.push(`/product/${product.id}`)}
+                className="hype-glass p-4 rounded-[2rem] flex flex-col justify-between group cursor-pointer transition-all duration-500 hover:border-white/15 hover:shadow-[0_24px_50px_rgba(0,0,0,0.7)] border border-white/0.05"
+              >
+                {/* Card Body wrapper */}
+                <div className="flex flex-col gap-4">
+                  {/* Image visual wrapper */}
+                  <div className="overflow-hidden rounded-2xl relative aspect-[4/3] bg-black/40 border border-white/[0.04]">
+                    <img 
+                      src={productImage} 
+                      alt={`${productName} - Luxury Gift Box wrapping by Greengirl Sri Lanka`} 
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+                    />
+                    {/* Tag overlay */}
+                    <div className="absolute top-3 left-3 bg-[#0D110D]/75 backdrop-blur-md border border-white/10 px-3 py-1 rounded-full text-[9px] font-black tracking-widest text-[#B2C4AC] uppercase shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
+                      {productTag}
+                    </div>
+                    {/* Liked state */}
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLikedProducts(prev => ({ ...prev, [product.id]: !prev[product.id] }));
+                      }}
+                      className="absolute top-3 right-3 p-2 rounded-full bg-[#0D110D]/70 hover:bg-[#0D110D]/90 border border-white/10 text-white hover:text-rose-400 active:scale-90 transition-all cursor-pointer z-20"
+                    >
+                      <Heart 
+                        className={`w-3.5 h-3.5 transition-all ${likedProducts[product.id] ? "fill-rose-500 text-rose-500" : "text-white"}`} 
+                      />
+                    </button>
+                    
+                    {/* Hover details action buttons */}
+                    <div className="absolute inset-0 bg-[#0D110D]/65 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-sm z-10">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setQuickViewProduct({
+                            ...product,
+                            name: productName,
+                            price: productPrice,
+                            image: productImage,
+                            alt: productAlt,
+                            category: productCategory,
+                            tag: productTag,
+                            rating: productRating,
+                            description: productDescription
+                          });
+                        }}
+                        className="px-4 py-2 rounded-full bg-white text-[#0D110D] font-bold text-[9px] tracking-wider uppercase hover:bg-neutral-200 active:scale-95 transition-all cursor-pointer"
+                      >
+                        Quick View
+                      </button>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addToCart({
+                            id: product.id,
+                            name: productName,
+                            price: productPrice,
+                            image: productImage,
+                            category: productCategory
+                          });
+                        }}
+                        className="px-4 py-2 rounded-full bg-[#B2C4AC] text-[#0D110D] font-bold text-[9px] tracking-wider uppercase hover:bg-[#A1B399] active:scale-95 transition-all cursor-pointer"
+                      >
+                        Add To Cart
+                      </button>
+                    </div>
                   </div>
-                  {/* Liked state */}
+
+                  {/* Details */}
+                  <div className="flex flex-col gap-1 px-1">
+                    <span className="text-[9px] font-bold tracking-widest text-[#B2C4AC] uppercase">
+                      {productCategory}
+                    </span>
+                    <h3 className="text-base font-bold text-white tracking-tight group-hover:text-[#B2C4AC] transition-colors duration-300">
+                      {productName}
+                    </h3>
+                    
+                    {/* Rating */}
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <div className="flex items-center text-amber-400">
+                        {[...Array(5)].map((_, i) => (
+                          <Star 
+                            key={i} 
+                            className={`w-3 h-3 ${i < Math.floor(productRating) ? "fill-amber-400 text-amber-400" : "text-neutral-700"}`} 
+                          />
+                        ))}
+                      </div>
+                      <span className="text-[10px] text-neutral-400 font-bold ml-1">{productRating.toFixed(1)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer inside card */}
+                <div className="flex items-center justify-between border-t border-white/0.05 pt-4 mt-4 px-1">
+                  <div className="text-base font-black text-white tracking-tight">{productPrice}</div>
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
-                      setLikedProducts(prev => ({ ...prev, [product.id]: !prev[product.id] }));
+                      addToCart({
+                        id: product.id,
+                        name: productName,
+                        price: productPrice,
+                        image: productImage,
+                        category: productCategory
+                      });
                     }}
-                    className="absolute top-3 right-3 p-2 rounded-full bg-[#0D110D]/70 hover:bg-[#0D110D]/90 border border-white/10 text-white hover:text-rose-400 active:scale-90 transition-all cursor-pointer z-20"
+                    className="text-[9px] font-bold tracking-widest text-[#B2C4AC] uppercase group-hover:text-white transition-colors flex items-center gap-1 hover:underline cursor-pointer"
                   >
-                    <Heart 
-                      className={`w-3.5 h-3.5 transition-all ${likedProducts[product.id] ? "fill-rose-500 text-rose-500" : "text-white"}`} 
-                    />
+                    Add +
                   </button>
-                  
-                  {/* Hover details action buttons */}
-                  <div className="absolute inset-0 bg-[#0D110D]/65 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-sm z-10">
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setQuickViewProduct(product);
-                      }}
-                      className="px-4 py-2 rounded-full bg-white text-[#0D110D] font-bold text-[9px] tracking-wider uppercase hover:bg-neutral-200 active:scale-95 transition-all cursor-pointer"
-                    >
-                      Quick View
-                    </button>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addToCart(product);
-                      }}
-                      className="px-4 py-2 rounded-full bg-[#B2C4AC] text-[#0D110D] font-bold text-[9px] tracking-wider uppercase hover:bg-[#A1B399] active:scale-95 transition-all cursor-pointer"
-                    >
-                      Add To Cart
-                    </button>
-                  </div>
                 </div>
-
-                {/* Details */}
-                <div className="flex flex-col gap-1 px-1">
-                  <span className="text-[9px] font-bold tracking-widest text-[#B2C4AC] uppercase">
-                    {product.category}
-                  </span>
-                  <h3 className="text-base font-bold text-white tracking-tight group-hover:text-[#B2C4AC] transition-colors duration-300">
-                    {product.name}
-                  </h3>
-                  
-                  {/* Rating */}
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <div className="flex items-center text-amber-400">
-                      {[...Array(5)].map((_, i) => (
-                        <Star 
-                          key={i} 
-                          className={`w-3 h-3 ${i < Math.floor(product.rating) ? "fill-amber-400 text-amber-400" : "text-neutral-750"}`} 
-                        />
-                      ))}
-                    </div>
-                    <span className="text-[10px] text-neutral-400 font-bold ml-1">{product.rating.toFixed(1)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Footer inside card */}
-              <div className="flex items-center justify-between border-t border-white/0.05 pt-4 mt-4 px-1">
-                <div className="text-base font-black text-white tracking-tight">{product.price}</div>
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    addToCart(product);
-                  }}
-                  className="text-[9px] font-bold tracking-widest text-[#B2C4AC] uppercase group-hover:text-white transition-colors flex items-center gap-1 hover:underline cursor-pointer"
-                >
-                  Add +
-                </button>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       </section>
 
       {/* Curator's Note Section */}
-      <section className="relative w-full max-w-5xl mx-auto px-4 py-16">
+      <section id="about" className="relative w-full max-w-5xl mx-auto px-4 py-16 scroll-mt-24">
         <div className="hype-glass p-8 md:p-12 border border-white/0.05 relative overflow-hidden flex flex-col md:flex-row items-center gap-8 md:gap-12">
           <div className="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-[#B2C4AC]/5 blur-3xl pointer-events-none" />
           
           <div className="w-full md:w-1/3 aspect-[3/4] rounded-2xl overflow-hidden bg-black/40 border border-white/10 shadow-[0_12px_36px_rgba(0,0,0,0.5)]">
             <img 
               src="/images/hero_banner.png" 
-              alt="Curator details showing premium dark studio setting" 
+              alt="Creative Director Nisha Ranasinghe details showing premium dark studio setting for Greengirl Sri Lanka" 
               className="w-full h-full object-cover saturate-[0.5] hover:scale-105 transition-transform duration-500" 
             />
           </div>
@@ -354,7 +421,7 @@ export default function StorefrontPage() {
             <span className="text-[10px] font-bold tracking-widest uppercase text-white">Navigation</span>
             <div className="flex flex-col gap-2">
               {["Collections", "Custom Gifts", "Gift Hampers", "Toys & Teddies"].map(link => (
-                <a key={link} href="#featured-collection" className="text-[10px] text-neutral-400 hover:text-[#B2C4AC] transition-colors">{link}</a>
+                <a key={link} href="#collections" className="text-[10px] text-neutral-450 hover:text-[#B2C4AC] transition-colors">{link}</a>
               ))}
             </div>
           </div>
@@ -419,7 +486,7 @@ export default function StorefrontPage() {
               <div className="w-full md:w-1/2 relative aspect-video md:aspect-auto md:min-h-[400px] bg-black/20">
                 <img 
                   src={quickViewProduct.image} 
-                  alt={quickViewProduct.alt} 
+                  alt={`${quickViewProduct.name} - Luxury Gift Box wrapping by Greengirl Sri Lanka`} 
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute top-4 left-4 bg-[#0D110D]/80 backdrop-blur-md border border-white/10 px-3 py-1 rounded-full text-[9px] font-black tracking-widest text-[#B2C4AC] uppercase">
@@ -471,15 +538,23 @@ export default function StorefrontPage() {
                       <span className="text-xl font-black text-white">{quickViewProduct.price}</span>
                     </div>
                     
-                    <div className="flex items-center gap-1.5 bg-black/20 border border-white/0.05 p-1 rounded-full">
-                      <span className="text-[10px] font-bold text-neutral-400 px-3 py-1">COD Available</span>
+                    <div className="flex flex-wrap items-center gap-1.5 justify-end">
+                      <span className="text-[9px] font-bold text-neutral-400 bg-white/[0.02] border border-white/0.05 px-2.5 py-1 rounded-full">COD Available</span>
+                      <span className="text-[9px] font-bold text-neutral-400 bg-white/[0.02] border border-white/0.05 px-2.5 py-1 rounded-full">Visa / Master</span>
+                      <span className="text-[9px] font-bold text-[#B2C4AC] bg-[#B2C4AC]/5 border border-[#B2C4AC]/10 px-2.5 py-1 rounded-full">Koko - 3 x Split</span>
                     </div>
                   </div>
 
                   <div className="flex gap-3">
                     <button 
                       onClick={() => {
-                        addToCart(quickViewProduct);
+                        addToCart({
+                          id: quickViewProduct.id,
+                          name: quickViewProduct.name,
+                          price: quickViewProduct.price,
+                          image: quickViewProduct.image,
+                          category: quickViewProduct.category
+                        });
                         setQuickViewProduct(null);
                       }}
                       className="flex-1 py-3.5 bg-[#B2C4AC] text-[#0D110D] rounded-full font-black text-xs tracking-widest uppercase hover:bg-[#A1B399] transition-all active:scale-95 cursor-pointer text-center"
