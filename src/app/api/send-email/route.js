@@ -21,8 +21,8 @@ export async function POST(request) {
       port: parseInt(process.env.SMTP_PORT || "587", 10),
       secure: process.env.SMTP_SECURE === "true", // true for port 465, false for 587
       auth: {
-        user: process.env.SMTP_USER || "mock-user@gmail.com",
-        pass: process.env.SMTP_PASS || "mock-password",
+        user: process.env.SMTP_USER || "info@greengirl.com",
+        pass: process.env.EMAIL_SERVER_PASSWORD || "mock-app-password",
       },
     });
 
