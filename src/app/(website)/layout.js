@@ -212,6 +212,12 @@ export default function WebsiteLayout({ children }) {
                           <div className="flex flex-col">
                             <span className="text-[8px] font-bold tracking-widest text-[#B2C4AC] uppercase">{item.category}</span>
                             <span className="text-[11px] font-bold text-white tracking-tight truncate max-w-[180px]">{item.name}</span>
+                            {(item.selectedVariantColor || item.selectedVariantSize) && (
+                              <div className="flex gap-2 mt-0.5 text-[9px] text-neutral-450/70 font-medium">
+                                {item.selectedVariantColor && <span>Color: {item.selectedVariantColor}</span>}
+                                {item.selectedVariantSize && <span>Size: {item.selectedVariantSize}</span>}
+                              </div>
+                            )}
                           </div>
                           
                           {/* Qty controls */}

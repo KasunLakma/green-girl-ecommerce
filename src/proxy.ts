@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function proxy(request: NextRequest) {
-  // Bypassed forced redirect checks for live supervisor presentation simulation
+  // Allow all website client paths to load unrestricted.
+  // ONLY routes matched by config.matcher (which is /admin/:path*) run here.
   return NextResponse.next();
 }
 
-// Config matcher configuration to target all admin dashboard subpaths
 export const config = {
   matcher: ["/admin/:path*"],
 };

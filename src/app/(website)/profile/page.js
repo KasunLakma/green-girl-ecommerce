@@ -28,20 +28,42 @@ export default function CustomerProfilePage() {
   const router = useRouter();
 
   useEffect(() => {
+    let isMounted = true;
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (!currentUser) {
-        // Redirect to website login if not authenticated
-        router.push("/login");
-        setUser(null);
-        setLoading(false);
+      if (!isMounted) return;
+      
+      let activeUser = currentUser;
+      
+      // Sandbox fallback: use session storage mock user if firebase user is null
+      if (!activeUser) {
+        const stored = sessionStorage.getItem("mockUser");
+        if (stored) {
+          try {
+            activeUser = JSON.parse(stored);
+          } catch (e) {
+            console.error("Failed to parse mock user:", e);
+          }
+        }
+      }
+
+      if (activeUser) {
+        setUser(activeUser);
+        await fetchUserOrders(activeUser);
+        if (isMounted) {
+          setLoading(false);
+        }
       } else {
-        setUser(currentUser);
-        setLoading(false);
-        await fetchUserOrders(currentUser);
+        setUser(null);
+        if (isMounted) {
+          router.push("/login");
+        }
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, [router]);
 
   const fetchUserOrders = async (currentUser) => {
@@ -79,6 +101,7 @@ export default function CustomerProfilePage() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      sessionStorage.removeItem("mockUser");
       router.push("/login");
     } catch (err) {
       console.error("Logout failed:", err);

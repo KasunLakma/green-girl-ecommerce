@@ -29,8 +29,17 @@ export default function CheckoutPage() {
     name: "",
     email: "",
     phone: "",
-    address: ""
+    address: "",
+    district: "Colombo"
   });
+
+  const districts = [
+    "Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya", 
+    "Galle", "Matara", "Hambantota", "Jaffna", "Kilinochchi", "Mannar", 
+    "Vavuniya", "Mullaitivu", "Batticaloa", "Ampara", "Trincomalee", 
+    "Kurunegala", "Puttalam", "Anuradhapura", "Polonnaruwa", "Badulla", 
+    "Moneragala", "Ratnapura", "Kegalle"
+  ];
 
   const checkoutItems = cart.length > 0 ? cart : [
     {
@@ -50,7 +59,15 @@ export default function CheckoutPage() {
     return acc + (itemPrice * (item.qty || 1));
   }, 0);
   
-  const shipping = 350;
+  const getShippingFee = (district) => {
+    const westernProvince = ["colombo", "gampaha", "kalutara"];
+    if (westernProvince.includes((district || "").toLowerCase())) {
+      return 350;
+    }
+    return 500;
+  };
+
+  const shipping = getShippingFee(formData.district);
   const grandTotal = subtotal + shipping;
 
   const handleSubmit = async (e) => {
@@ -91,7 +108,7 @@ export default function CheckoutPage() {
         customerName: formData.name,
         customerEmail: formData.email,
         customerPhone: formData.phone,
-        customerAddress: formData.address,
+        customerAddress: `${formData.address}, ${formData.district}`,
         paymentMethod: paymentMethod,
         items: checkoutItems.map(item => ({
           id: item.id,
@@ -109,6 +126,17 @@ export default function CheckoutPage() {
       await addDoc(collection(db, "orders"), orderData);
       setOrderId(newOrderId);
       
+      // Dispatch dual email notifications in the background (non-blocking)
+      fetch("/api/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      }).catch(emailErr => {
+        console.error("Background operational email dispatch failed:", emailErr);
+      });
+
       // Clear cart
       if (clearCart) {
         clearCart();
@@ -212,6 +240,20 @@ export default function CheckoutPage() {
                         placeholder="e.g. 12/3 Park Avenue, Colombo 07"
                         className="px-4 py-3 rounded-xl bg-black/45 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#B2C4AC] transition-all resize-none"
                       />
+                    </div>
+
+                    {/* District Selector Dropdown */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">District *</label>
+                      <select
+                        value={formData.district}
+                        onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+                        className="px-4 py-3 rounded-xl bg-black/45 border border-white/10 text-xs text-white focus:outline-none focus:border-[#B2C4AC] transition-all cursor-pointer [&>option]:bg-[#0D110D] [&>option]:text-white"
+                      >
+                        {districts.map((d) => (
+                          <option key={d} value={d}>{d}</option>
+                        ))}
+                      </select>
                     </div>
                   </form>
                 </div>
