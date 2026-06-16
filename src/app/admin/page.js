@@ -11,6 +11,7 @@ const CATEGORY_MAP = {
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -18,8 +19,34 @@ export default function AdminProductsPage() {
     description: "",
     colors: "",
     sizes: "",
-    imageAlt: ""
+    imageAlt: "",
+    image: ""
   });
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({ ...prev, image: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleEdit = (product) => {
+    setEditingProduct(product);
+    setFormData({
+      name: product.name || "",
+      price: product.price ? product.price.toString() : "",
+      category: product.category || "Customized",
+      description: product.description || "",
+      colors: product.colors || "",
+      sizes: product.sizes || "",
+      imageAlt: product.imageAlt || "",
+      image: product.image || ""
+    });
+  };
 
   // 1. Fetch live products from backend API
   const fetchProducts = async () => {
@@ -42,20 +69,30 @@ export default function AdminProductsPage() {
     fetchProducts();
   }, []);
 
-  // 2. Handle form submission to POST API
+  // 2. Handle form submission to POST or UPDATE API/state
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch("/api/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
-      });
+      if (editingProduct) {
+        const updatedItem = {
+          ...editingProduct,
+          ...formData,
+          price: parseFloat(formData.price) || 0
+        };
+        const currentLocalItems = JSON.parse(localStorage.getItem('mock_products') || '[]');
+        let updatedLocalItems;
+        const existsLocally = currentLocalItems.some((lp) => lp.id === editingProduct.id);
+        if (existsLocally) {
+          updatedLocalItems = currentLocalItems.map((lp) => (lp.id === editingProduct.id ? updatedItem : lp));
+        } else {
+          updatedLocalItems = [updatedItem, ...currentLocalItems];
+        }
+        localStorage.setItem('mock_products', JSON.stringify(updatedLocalItems));
 
-      if (res.ok) {
-        const newProduct = await res.json();
-        // Reset form and refresh table list immediately
+        const updatedProducts = products.map((p) => (p.id === editingProduct.id ? updatedItem : p));
+        setProducts(updatedProducts);
+
         setFormData({
           name: "",
           price: "",
@@ -63,14 +100,37 @@ export default function AdminProductsPage() {
           description: "",
           colors: "",
           sizes: "",
-          imageAlt: ""
+          imageAlt: "",
+          image: ""
         });
-        const currentLocalItems = JSON.parse(localStorage.getItem('mock_products') || '[]');
-        localStorage.setItem('mock_products', JSON.stringify([newProduct, ...currentLocalItems]));
-        setProducts([newProduct, ...products]);
+        setEditingProduct(null);
+      } else {
+        const res = await fetch("/api/products", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
+
+        if (res.ok) {
+          const newProduct = await res.json();
+          setFormData({
+            name: "",
+            price: "",
+            category: "Customized",
+            description: "",
+            colors: "",
+            sizes: "",
+            imageAlt: "",
+            image: ""
+          });
+          const productToSave = { ...newProduct, image: formData.image || newProduct.image };
+          const currentLocalItems = JSON.parse(localStorage.getItem('mock_products') || '[]');
+          localStorage.setItem('mock_products', JSON.stringify([productToSave, ...currentLocalItems]));
+          setProducts([productToSave, ...products]);
+        }
       }
     } catch (err) {
-      console.error("Failed to add product:", err);
+      console.error("Failed to submit product:", err);
     } finally {
       setLoading(false);
     }
@@ -179,12 +239,23 @@ export default function AdminProductsPage() {
             />
           </div>
 
+          {/* File Upload Section */}
+          <div className="border-t border-white/0.05 pt-4 flex flex-col gap-1.5">
+            <label className="text-[10px] font-bold tracking-widest uppercase text-neutral-300">Product Image File</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#A1B399]/40 focus:outline-none transition-all text-neutral-400 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-semibold file:bg-white/10 file:text-neutral-200 hover:file:bg-white/20"
+            />
+          </div>
+
           <button
             type="submit"
             disabled={loading}
             className="w-full mt-2 bg-[#A1B399] text-[#0B0E0B] hover:bg-[#B2C4AC] disabled:opacity-50 font-bold text-xs tracking-widest py-3.5 rounded-xl transition-all uppercase"
           >
-            {loading ? "Adding..." : "Add Product"}
+            {loading ? (editingProduct ? "Updating..." : "Adding...") : (editingProduct ? "Update Product" : "Add Product")}
           </button>
         </form>
 
@@ -200,12 +271,13 @@ export default function AdminProductsPage() {
                   <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Price</th>
                   <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Variations (Colors/Sizes)</th>
                   <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">SEO Alt State</th>
+                  <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC] text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/0.02">
                 {products.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-xs text-neutral-400 italic">No products found. Add your first item.</td>
+                    <td colSpan={6} className="py-8 text-center text-xs text-neutral-400 italic">No products found. Add your first item.</td>
                   </tr>
                 ) : (
                   products.map((product) => (
@@ -229,6 +301,15 @@ export default function AdminProductsPage() {
                         ) : (
                           <span className="text-neutral-500 italic text-[10px]">Missing Alt</span>
                         )}
+                      </td>
+                      <td className="py-3.5 text-xs text-right">
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(product)}
+                          className="bg-white/5 border border-white/10 hover:bg-[#A1B399]/15 hover:border-[#A1B399]/30 text-[#B2C4AC] hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-wider uppercase transition-all"
+                        >
+                          Edit
+                        </button>
                       </td>
                     </tr>
                   ))

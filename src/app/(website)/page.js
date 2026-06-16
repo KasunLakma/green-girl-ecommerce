@@ -232,7 +232,7 @@ export default function StorefrontPage() {
           {products.map((product, index) => {
             const productName = product.name || product.title || "Luxury Gift Item";
             const productPrice = typeof product.price === "number" ? `Rs. ${product.price.toLocaleString()}` : (product.price || "Rs. 0");
-            const productImage = product.image || product.imageUrl || "/images/rose_hamper.png";
+            const productImage = product.image || "/images/rose_hamper.png";
             const productAlt = product.alt || product.imageAlt || `${productName} - Luxury Gift Box wrapping by Greengirl Sri Lanka`;
             const productCategory = product.category || "Customized Gifts";
             const productTag = product.tag || "PREMIUM";
