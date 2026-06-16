@@ -68,14 +68,15 @@ export default function StorefrontPage() {
         querySnapshot.forEach((doc) => {
           items.push({ id: doc.id, ...doc.data() });
         });
-        if (items.length > 0) {
-          setProducts(items);
-        } else {
-          setProducts(staticProducts);
-        }
+        const initialProducts = items.length > 0 ? items : staticProducts;
+        const cachedItems = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("mock_products") || "[]") : [];
+        const merged = [...cachedItems, ...initialProducts.filter((p) => !cachedItems.some((c) => c.id === p.id))];
+        setProducts(merged);
       } catch (error) {
         console.error("Error fetching products from Firestore:", error);
-        setProducts(staticProducts);
+        const cachedItems = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("mock_products") || "[]") : [];
+        const merged = [...cachedItems, ...staticProducts.filter((p) => !cachedItems.some((c) => c.id === p.id))];
+        setProducts(merged);
       } finally {
         setLoadingProducts(false);
       }
