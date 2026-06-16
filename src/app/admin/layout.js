@@ -1,0 +1,57 @@
+"use client";
+import React, { useState } from "react";
+
+export default function AdminLayout({ children }) {
+  const [activeTab, setActiveTab] = useState("Products");
+  const menuItems = ["Dashboard", "Products", "Orders", "Enquiries"];
+
+  return (
+    <div className="min-h-screen w-full flex bg-[#0D110D] text-neutral-100 select-none overflow-hidden">
+      {/* High-Contrast Fixed Sidebar Layout */}
+      <aside className="w-64 min-h-screen bg-[#0B0E0B]/80 backdrop-blur-md border-r border-white/0.05 p-6 flex flex-col justify-between z-20">
+        <div className="flex flex-col gap-8">
+          <div className="px-4 py-2 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#A1B399] animate-pulse" />
+            <h1 className="text-xs font-bold tracking-[0.2em] uppercase text-[#B2C4AC]">
+              Green Girl Admin
+            </h1>
+          </div>
+          <nav className="flex flex-col gap-1.5">
+            {menuItems.map((item) => (
+              <button
+                key={item}
+                onClick={() => setActiveTab(item)}
+                className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold tracking-wider transition-all duration-200 ${
+                  activeTab === item
+                    ? "bg-[#A1B399]/20 text-[#B2C4AC] border border-[#A1B399]/30 shadow-[0_0_15px_rgba(161,179,153,0.05)]"
+                    : "text-neutral-200 hover:bg-white/0.05 hover:text-white border border-transparent"
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+          </nav>
+        </div>
+        <div className="px-4 py-2 border-t border-white/0.05 text-[10px] text-neutral-300 font-medium tracking-widest uppercase">
+          System Live • v1.0
+        </div>
+      </aside>
+
+      {/* Main Framework Content Area wrapper with high contrast global adjustments */}
+      <main className="flex-1 min-h-screen p-8 lg:p-12 overflow-y-auto relative z-10 bg-gradient-to-b from-[#111612]/30 to-transparent">
+        {/* Injecting dynamic styling targeting inner text issues globally */}
+        <style jsx global>{`
+          th {
+            color: #B2C4AC !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.1em !important;
+          }
+          label {
+            color: #E5E5E5 !important;
+          }
+        `}</style>
+        {children}
+      </main>
+    </div>
+  );
+}
