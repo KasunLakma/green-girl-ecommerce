@@ -1,9 +1,16 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function AdminLayout({ children }) {
-  const [activeTab, setActiveTab] = useState("Products");
-  const menuItems = ["Dashboard", "Products", "Orders", "Enquiries"];
+  const pathname = usePathname();
+  const menuItems = [
+    { name: "Dashboard", href: "/admin/dashboard" },
+    { name: "Products", href: "/admin" },
+    { name: "Orders", href: "/admin/orders" },
+    { name: "Enquiries", href: "/admin/enquiries" },
+  ];
 
   return (
     <div className="min-h-screen w-full flex bg-[#0D110D] text-neutral-100 select-none overflow-hidden">
@@ -17,19 +24,22 @@ export default function AdminLayout({ children }) {
             </h1>
           </div>
           <nav className="flex flex-col gap-1.5">
-            {menuItems.map((item) => (
-              <button
-                key={item}
-                onClick={() => setActiveTab(item)}
-                className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold tracking-wider transition-all duration-200 ${
-                  activeTab === item
-                    ? "bg-[#A1B399]/20 text-[#B2C4AC] border border-[#A1B399]/30 shadow-[0_0_15px_rgba(161,179,153,0.05)]"
-                    : "text-neutral-200 hover:bg-white/0.05 hover:text-white border border-transparent"
-                }`}
-              >
-                {item}
-              </button>
-            ))}
+            {menuItems.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link key={item.name} href={item.href} className="w-full block">
+                  <button
+                    className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold tracking-wider transition-all duration-200 ${
+                      isActive
+                        ? "bg-[#A1B399]/20 text-[#B2C4AC] border border-[#A1B399]/30 shadow-[0_0_15px_rgba(161,179,153,0.05)]"
+                        : "text-neutral-200 hover:bg-white/0.05 hover:text-white border border-transparent"
+                    }`}
+                  >
+                    {item.name}
+                  </button>
+                </Link>
+              );
+            })}
           </nav>
         </div>
         <div className="px-4 py-2 border-t border-white/0.05 text-[10px] text-neutral-300 font-medium tracking-widest uppercase">

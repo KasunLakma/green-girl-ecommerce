@@ -1,213 +1,164 @@
 "use client";
+import React, { useState, useEffect } from "react";
 
-import React, { useState } from "react";
-import { Plus, Trash2, ShoppingBag, Tag, Info } from "lucide-react";
+const CATEGORY_MAP = {
+  Customized: "Customized Gifts",
+  Bouquets: "Flower Bouquets",
+  Toys: "Toys & Teddies",
+  Hampers: "Gift Hampers"
+};
 
 export default function AdminProductsPage() {
-  const [products, setProducts] = useState([
-    { id: 1, name: "Matcha Volcanic Clay Drink", category: "Drinks", price: 650, status: "Active" },
-    { id: 2, name: "Ceramic Matte Sage Vase", category: "Specials", price: 2400, status: "Active" },
-    { id: 3, name: "Brand Canvas Tote", category: "Merch", price: 1200, status: "Active" },
-  ]);
-
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     price: "",
-    category: "Drinks",
+    category: "Customized",
     description: ""
   });
 
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  // 1. Fetch live products from backend API
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch("/api/products");
+      if (res.ok) {
+        const data = await res.json();
+        setProducts(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch products:", err);
+    }
   };
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  // 2. Handle form submission to POST API
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.price.trim()) {
-      setErrorMessage("Please fill in both the Product Name and Price.");
-      return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+
+      if (res.ok) {
+        // Reset form and refresh table list immediately
+        setFormData({ name: "", price: "", category: "Customized", description: "" });
+        await fetchProducts();
+      }
+    } catch (err) {
+      console.error("Failed to add product:", err);
+    } finally {
+      setLoading(false);
     }
-
-    const priceNum = parseFloat(formData.price);
-    if (isNaN(priceNum) || priceNum <= 0) {
-      setErrorMessage("Price must be a valid positive number.");
-      return;
-    }
-
-    const newProduct = {
-      id: Date.now(),
-      name: formData.name.trim(),
-      category: formData.category,
-      price: priceNum,
-      status: "Active"
-    };
-
-    setProducts((prev) => [newProduct, ...prev]);
-    setFormData({
-      name: "",
-      price: "",
-      category: "Drinks",
-      description: ""
-    });
-    setErrorMessage("");
-  };
-
-  const handleDelete = (id) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
   };
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white">Products Management</h1>
-        <p className="text-sm text-neutral-400 mt-1.5">Create, edit, and organize your storefront catalog item offerings.</p>
+    <div className="flex flex-col gap-6 animate-fadeIn">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-xl font-bold tracking-tight text-white">Products Management</h1>
+        <p className="text-xs text-neutral-400">Create, edit, and organize your storefront catalog item offerings.</p>
       </div>
 
-      {/* Main Grid Workspace */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Left Side: Product Upload Form */}
-        <div className="lg:col-span-1 bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col gap-5">
-          <div>
-            <h3 className="text-sm font-semibold tracking-wider text-neutral-300 uppercase flex items-center gap-2">
-              <Plus className="w-4 h-4 text-[#A1B399]" />
-              New Product Form
-            </h3>
-            <p className="text-[11px] text-neutral-500 mt-1">Publish a new luxury asset to your live storefront.</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* Dynamic Input Product Form */}
+        <form onSubmit={handleSubmit} className="lg:col-span-1 bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col gap-4">
+          <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC] mb-2">+ New Product Form</h2>
+          
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-bold tracking-widest uppercase text-neutral-300">Product Name</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Handmade Cute Diary Pack"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#A1B399]/40 focus:outline-none transition-all"
+            />
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            {/* Form Fields */}
+          <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Product Name</label>
+              <label className="text-[10px] font-bold tracking-widest uppercase text-neutral-300">Price (Rs.)</label>
               <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="e.g. Volcanic Clay Cleanser"
-                className="bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs focus:border-[#A1B399]/40 focus:outline-none transition-all text-white placeholder-neutral-600"
+                type="number"
+                required
+                placeholder="e.g. 1800"
+                value={formData.price}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#A1B399]/40 focus:outline-none transition-all"
               />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Price (Rs.)</label>
-                <input
-                  type="text"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleChange}
-                  placeholder="e.g. 1500"
-                  className="bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs focus:border-[#A1B399]/40 focus:outline-none transition-all text-white placeholder-neutral-600"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Category</label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs focus:border-[#A1B399]/40 focus:outline-none transition-all text-white [&>option]:bg-[#0D110D] [&>option]:text-white"
-                >
-                  <option value="Drinks">Drinks</option>
-                  <option value="Specials">Specials</option>
-                  <option value="Merch">Merch</option>
-                </select>
-              </div>
-            </div>
-
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Description</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                rows={3}
-                placeholder="Write a brief, compelling brand story..."
-                className="bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs focus:border-[#A1B399]/40 focus:outline-none transition-all text-white placeholder-neutral-600 resize-none"
-              />
+              <label className="text-[10px] font-bold tracking-widest uppercase text-neutral-300">Category</label>
+              <select
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#A1B399]/40 focus:outline-none transition-all [&>option]:bg-[#0D110D] [&>option]:text-white"
+              >
+                <option value="Customized">Customized Gifts</option>
+                <option value="Bouquets">Flower Bouquets</option>
+                <option value="Toys">Toys & Teddies</option>
+                <option value="Hampers">Gift Hampers</option>
+              </select>
             </div>
-
-            {errorMessage && (
-              <div className="flex items-center gap-1.5 text-rose-400 text-[11px] bg-rose-950/20 border border-rose-900/30 rounded-lg p-3">
-                <Info className="w-3.5 h-3.5 shrink-0" />
-                <span>{errorMessage}</span>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              className="bg-[#A1B399] text-[#0B0E0B] hover:bg-[#B2C4AC] font-bold text-xs tracking-widest py-3 rounded-xl transition-all uppercase mt-2 select-none cursor-pointer"
-            >
-              Add Product
-            </button>
-          </form>
-        </div>
-
-        {/* Right Side: Live Products List Table */}
-        <div className="lg:col-span-2 bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col gap-4">
-          <div>
-            <h3 className="text-sm font-semibold tracking-wider text-neutral-300 uppercase flex items-center gap-2">
-              <ShoppingBag className="w-4 h-4 text-[#A1B399]" />
-              Active Inventory
-            </h3>
-            <p className="text-[11px] text-neutral-500 mt-1">Review, audit, or delete active items currently exposed to the web.</p>
           </div>
 
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-bold tracking-widest uppercase text-neutral-300">Description</label>
+            <textarea
+              rows={3}
+              placeholder="Write a brief, compelling brand story..."
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#A1B399]/40 focus:outline-none transition-all resize-none"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full mt-2 bg-[#A1B399] text-[#0B0E0B] hover:bg-[#B2C4AC] disabled:opacity-50 font-bold text-xs tracking-widest py-3.5 rounded-xl transition-all uppercase"
+          >
+            {loading ? "Adding..." : "Add Product"}
+          </button>
+        </form>
+
+        {/* Real-time Connected Inventory Table */}
+        <div className="lg:col-span-2 bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col gap-4 overflow-hidden">
+          <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC] mb-2">📦 Active Inventory</h2>
           <div className="overflow-x-auto w-full">
-            <table className="w-full border-collapse text-left">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-white/0.05 text-[10px] font-bold uppercase tracking-wider text-neutral-450 pb-3">
-                  <th className="py-3 px-4 font-semibold text-neutral-500">Product Title</th>
-                  <th className="py-3 px-4 font-semibold text-neutral-500">Category</th>
-                  <th className="py-3 px-4 font-semibold text-neutral-500">Price</th>
-                  <th className="py-3 px-4 font-semibold text-neutral-500">Status</th>
-                  <th className="py-3 px-4 font-semibold text-neutral-500 text-right">Actions</th>
+                <tr className="border-b border-white/0.05 text-[10px] font-bold uppercase tracking-wider text-[#B2C4AC] pb-3">
+                  <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Product Title</th>
+                  <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Category</th>
+                  <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Price</th>
+                  <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.03] text-xs">
+              <tbody className="divide-y divide-white/0.02">
                 {products.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-neutral-500 tracking-wider font-medium uppercase text-[10px]">
-                      No active items found in database
-                    </td>
+                    <td colSpan={4} className="py-8 text-center text-xs text-neutral-400 italic">No products found. Add your first item.</td>
                   </tr>
                 ) : (
                   products.map((product) => (
-                    <tr
-                      key={product.id}
-                      className="hover:bg-white/0.01 transition-colors group"
-                    >
-                      <td className="py-3.5 px-4 font-medium text-white">{product.name}</td>
-                      <td className="py-3.5 px-4 text-neutral-400">
-                        <span className="flex items-center gap-1.5">
-                          <Tag className="w-3.5 h-3.5 text-[#A1B399]/70" />
-                          {product.category}
+                    <tr key={product.id} className="hover:bg-white/0.01 transition-colors">
+                      <td className="py-3.5 text-xs font-semibold text-neutral-100">{product.name}</td>
+                      <td className="py-3.5 text-xs text-neutral-300">
+                        {CATEGORY_MAP[product.category] || product.category}
+                      </td>
+                      <td className="py-3.5 text-xs font-medium text-neutral-200">Rs. {product.price.toLocaleString()}</td>
+                      <td className="py-3.5 text-xs">
+                        <span className="bg-[#A1B399]/10 text-[#B2C4AC] px-2.5 py-1 rounded-full text-[10px] font-bold border border-[#A1B399]/10">
+                          • Active
                         </span>
-                      </td>
-                      <td className="py-3.5 px-4 font-semibold text-[#B2C4AC]">
-                        Rs. {product.price.toLocaleString()}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#A1B399]/10 text-[#B2C4AC] border border-[#A1B399]/20">
-                          <span className="w-1 h-1 rounded-full bg-[#A1B399]" />
-                          {product.status}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <button
-                          onClick={() => handleDelete(product.id)}
-                          className="text-neutral-500 hover:text-rose-400 transition-colors p-1.5 rounded-lg hover:bg-rose-950/10 cursor-pointer"
-                          title="Delete Product"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
                       </td>
                     </tr>
                   ))
@@ -216,7 +167,6 @@ export default function AdminProductsPage() {
             </table>
           </div>
         </div>
-
       </div>
     </div>
   );
