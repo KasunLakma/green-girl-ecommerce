@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 :root {
-  --bg-primary: #0B0E0B;
+  --bg-primary: #0D110D;
   --text-primary: #FFFFFF;
   --text-secondary: #94A3B8;
 }
@@ -15,16 +15,33 @@
 
 html, body {
   min-height: 100vh;
-  overflow-x: hidden;
   margin: 0;
   padding: 0;
+  background-color: #0D110D !important; /* Slightly elevated dark base */
+  position: relative;
+  overflow-x: hidden;
 }
 
 body {
-  background: linear-gradient(to bottom, #4A554A 0%, #222A23 30%, #111612 70%, #0B0E0B 100%) no-repeat fixed;
   color: var(--text-primary);
   font-family: 'Plus Jakarta Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  top: -35%;
+  left: -10%;
+  width: 120vw;
+  height: 95vh;
+  /* Exact matched lighter pastel sage to dark flow */
+  background: radial-gradient(ellipse at top center, #B2C4AC 0%, #6E856A 30%, #354236 60%, #131A14 85%, transparent 100%) !important;
+  filter: blur(140px) contrast(1.05);
+  -webkit-filter: blur(140px) contrast(1.05);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.98;
 }
 
 .hype-glass {

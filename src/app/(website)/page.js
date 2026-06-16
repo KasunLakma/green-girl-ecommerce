@@ -8,7 +8,7 @@ export default function StorefrontPage() {
   const navItems = ["HOME", "COLLECTIONS", "SPECIALS", "ABOUT"];
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center justify-center select-none overflow-hidden">
+    <div className="relative z-10 min-h-screen w-full flex flex-col items-center justify-center select-none overflow-hidden">
       
       {/* Floating Navigation Overlay */}
       <header className="fixed top-6 z-50 w-full max-w-md px-4">
