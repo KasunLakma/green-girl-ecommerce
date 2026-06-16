@@ -50,6 +50,7 @@ export default function AdminProductsPage() {
       });
 
       if (res.ok) {
+        const newProduct = await res.json();
         // Reset form and refresh table list immediately
         setFormData({
           name: "",
@@ -60,6 +61,7 @@ export default function AdminProductsPage() {
           sizes: "",
           imageAlt: ""
         });
+        setProducts([newProduct, ...products]);
         await fetchProducts();
       }
     } catch (err) {
