@@ -62,7 +62,7 @@ export default function AdminProductsPage() {
           imageAlt: ""
         });
         setProducts([newProduct, ...products]);
-        await fetchProducts();
+        window.location.reload();
       }
     } catch (err) {
       console.error("Failed to add product:", err);
