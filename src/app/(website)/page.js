@@ -62,20 +62,45 @@ export default function StorefrontPage() {
 
   useEffect(() => {
     const fetchProducts = async () => {
+      const localItems = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("mock_products") || "[]") : [];
+      const processedLocalItems = localItems.map((item) => {
+        if (!item.image && !(item.images && item.images[0])) {
+          return {
+            ...item,
+            image: "https://images.unsplash.com/photo-1585336261022-675929945037?w=500"
+          };
+        }
+        return item;
+      });
+
       try {
-        const querySnapshot = await getDocs(collection(db, "products"));
-        const items = [];
-        querySnapshot.forEach((doc) => {
-          items.push({ id: doc.id, ...doc.data() });
-        });
-        const initialProducts = items.length > 0 ? items : staticProducts;
-        const cachedItems = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("mock_products") || "[]") : [];
-        const merged = [...cachedItems, ...initialProducts.filter((p) => !cachedItems.some((c) => c.id === p.id))];
-        setProducts(merged);
+        const fetchPromise = (async () => {
+          const querySnapshot = await getDocs(collection(db, "products"));
+          const items = [];
+          querySnapshot.forEach((doc) => {
+            items.push({ id: doc.id, ...doc.data() });
+          });
+          return items;
+        })();
+
+        const timeoutPromise = new Promise((resolve) =>
+          setTimeout(() => resolve("timeout"), 800)
+        );
+
+        const result = await Promise.race([fetchPromise, timeoutPromise]);
+
+        if (result === "timeout") {
+          console.warn("Live database fetch timed out after 800ms. Loading fallback.");
+          const merged = [...processedLocalItems, ...staticProducts.filter((p) => !processedLocalItems.some((c) => c.id === p.id))];
+          setProducts(merged);
+        } else {
+          const initialProducts = result.length > 0 ? result : staticProducts;
+          const merged = [...processedLocalItems, ...initialProducts.filter((p) => !processedLocalItems.some((c) => c.id === p.id))];
+          setProducts(merged);
+        }
       } catch (error) {
         console.error("Error fetching products from Firestore:", error);
-        const cachedItems = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("mock_products") || "[]") : [];
-        const merged = [...cachedItems, ...staticProducts.filter((p) => !cachedItems.some((c) => c.id === p.id))];
+        const merged = [...processedLocalItems, ...staticProducts.filter((p) => !processedLocalItems.some((c) => c.id === p.id))];
         setProducts(merged);
       } finally {
         setLoadingProducts(false);
