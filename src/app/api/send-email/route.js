@@ -22,7 +22,7 @@ export async function POST(request) {
       secure: process.env.SMTP_SECURE === "true", // true for port 465, false for 587
       auth: {
         user: process.env.SMTP_USER || "info@greengirl.com",
-        pass: process.env.EMAIL_SERVER_PASSWORD || "mock-app-password",
+        pass: process.env.EMAIL_SERVER_PASSWORD || "abcdefghijklmnop",
       },
     });
 
@@ -164,8 +164,11 @@ export async function POST(request) {
       html: adminHtml,
     };
 
-    // Dispatch mock emails for supervisor testing and evaluation
-    console.log("Mock Email Sent Successfully");
+    // Dispatch emails concurrently
+    await Promise.all([
+      transporter.sendMail(mailToCustomer),
+      transporter.sendMail(mailToAdmin),
+    ]);
 
     return NextResponse.json({ success: true, message: "Emails dispatched successfully." });
   } catch (error) {
