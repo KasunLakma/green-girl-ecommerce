@@ -27,7 +27,9 @@ export default function AdminProductsPage() {
       const res = await fetch("/api/products");
       if (res.ok) {
         const data = await res.json();
-        setProducts(data);
+        const localItems = JSON.parse(localStorage.getItem('mock_products') || '[]');
+        const merged = [...localItems, ...data.filter((p) => !localItems.some((lp) => lp.id === p.id))];
+        setProducts(merged);
       }
     } catch (err) {
       console.error("Failed to fetch products:", err);
@@ -35,6 +37,8 @@ export default function AdminProductsPage() {
   };
 
   useEffect(() => {
+    const localItems = JSON.parse(localStorage.getItem('mock_products') || '[]');
+    setProducts(localItems);
     fetchProducts();
   }, []);
 
@@ -61,8 +65,9 @@ export default function AdminProductsPage() {
           sizes: "",
           imageAlt: ""
         });
+        const currentLocalItems = JSON.parse(localStorage.getItem('mock_products') || '[]');
+        localStorage.setItem('mock_products', JSON.stringify([newProduct, ...currentLocalItems]));
         setProducts([newProduct, ...products]);
-        window.location.reload();
       }
     } catch (err) {
       console.error("Failed to add product:", err);
