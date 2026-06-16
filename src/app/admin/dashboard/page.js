@@ -1,72 +1,95 @@
-import React from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 
 export default function AdminDashboardPage() {
+  const [catalogCount, setCatalogCount] = useState(14);
+
+  useEffect(() => {
+    const fetchCatalogCount = async () => {
+      try {
+        const res = await fetch("/api/products");
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            setCatalogCount(data.length);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch active catalog:", err);
+      }
+    };
+    fetchCatalogCount();
+  }, []);
+
+  const activities = [
+    { id: 1, text: "New order received for Stitch Plush Toy", time: "2 hours ago", type: "order" },
+    { id: 2, text: "Enquiry replied from custom gift pack", time: "4 hours ago", type: "enquiry" },
+    { id: 3, text: "Product Catalog updated: Added 'Handmade Rose Bouquet'", time: "1 day ago", type: "catalog" },
+    { id: 4, text: "Shipment status for ORD-9280 marked as 'Dispatched'", time: "1 day ago", type: "shipping" },
+  ];
+
   return (
-    <div className="flex flex-col gap-6 animate-fadeIn">
+    <div className="flex flex-col gap-8 animate-fadeIn text-neutral-100">
+      {/* Headings */}
       <div className="flex flex-col gap-1">
         <h1 className="text-xl font-bold tracking-tight text-white">Dashboard Overview</h1>
-        <p className="text-xs text-neutral-400">Real-time analytics, sales highlights, and boutique performance metrics.</p>
+        <p className="text-xs text-neutral-400">Monitor boutique performance, order flow, and catalog health.</p>
       </div>
 
-      {/* Analytics Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col gap-2">
-          <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC]">Total Revenue</span>
-          <div className="text-2xl font-bold text-white tracking-tight">Rs. 142,800</div>
-          <span className="text-[10px] text-emerald-400 font-medium">+12.4% from last week</span>
+      {/* Premium Stat Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Card 1 */}
+        <div className="bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col justify-between gap-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC]">Total Revenue</span>
+            <span className="bg-[#A1B399]/15 text-[#B2C4AC] px-2.5 py-0.5 rounded-full text-[9px] font-bold border border-[#A1B399]/10">
+              +18.2%
+            </span>
+          </div>
+          <div className="flex flex-col">
+            <div className="text-2xl font-bold text-white tracking-tight">Rs. 48,500</div>
+            <span className="text-[10px] text-neutral-400 mt-1">Gross sales this month</span>
+          </div>
         </div>
 
-        <div className="bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col gap-2">
-          <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC]">Active Orders</span>
-          <div className="text-2xl font-bold text-white tracking-tight">24 Pending</div>
-          <span className="text-[10px] text-neutral-400 font-medium">8 dispatched today</span>
+        {/* Card 2 */}
+        <div className="bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col justify-between gap-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC]">Total Orders</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#A1B399] animate-pulse" />
+          </div>
+          <div className="flex flex-col">
+            <div className="text-2xl font-bold text-white tracking-tight">32 Orders</div>
+            <span className="text-[10px] text-neutral-400 mt-1">5 pending shipment</span>
+          </div>
         </div>
 
-        <div className="bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col gap-2">
-          <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC]">Conversion Rate</span>
-          <div className="text-2xl font-bold text-white tracking-tight">3.48%</div>
-          <span className="text-[10px] text-emerald-400 font-medium">+0.8% increase</span>
-        </div>
-
-        <div className="bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col gap-2">
-          <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC]">Boutique Enquiries</span>
-          <div className="text-2xl font-bold text-white tracking-tight">12 Open</div>
-          <span className="text-[10px] text-amber-400 font-medium">4 urgent tickets</span>
+        {/* Card 3 */}
+        <div className="bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col justify-between gap-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC]">Active Catalog</span>
+            <span className="text-[10px] text-neutral-400 font-medium">Synced</span>
+          </div>
+          <div className="flex flex-col">
+            <div className="text-2xl font-bold text-white tracking-tight">{catalogCount} Gift Items</div>
+            <span className="text-[10px] text-neutral-400 mt-1">Available in public storefront</span>
+          </div>
         </div>
       </div>
 
-      {/* Main Analytics Highlight */}
+      {/* Recent Activity Section */}
       <div className="bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col gap-4">
-        <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC]">📈 Weekly Performance</h2>
-        <div className="h-48 flex items-end justify-between gap-2 pt-6 border-b border-white/0.05">
-          <div className="flex-1 flex flex-col items-center gap-2">
-            <div className="w-full bg-[#A1B399]/20 hover:bg-[#A1B399]/30 rounded-t-lg transition-all" style={{ height: "40%" }} />
-            <span className="text-[9px] uppercase tracking-wider text-neutral-400">Mon</span>
-          </div>
-          <div className="flex-1 flex flex-col items-center gap-2">
-            <div className="w-full bg-[#A1B399]/20 hover:bg-[#A1B399]/30 rounded-t-lg transition-all" style={{ height: "55%" }} />
-            <span className="text-[9px] uppercase tracking-wider text-neutral-400">Tue</span>
-          </div>
-          <div className="flex-1 flex flex-col items-center gap-2">
-            <div className="w-full bg-[#A1B399]/20 hover:bg-[#A1B399]/30 rounded-t-lg transition-all" style={{ height: "45%" }} />
-            <span className="text-[9px] uppercase tracking-wider text-neutral-400">Wed</span>
-          </div>
-          <div className="flex-1 flex flex-col items-center gap-2">
-            <div className="w-full bg-[#A1B399]/40 hover:bg-[#A1B399]/50 rounded-t-lg transition-all" style={{ height: "75%" }} />
-            <span className="text-[9px] uppercase tracking-wider text-neutral-400">Thu</span>
-          </div>
-          <div className="flex-1 flex flex-col items-center gap-2">
-            <div className="w-full bg-[#A1B399]/20 hover:bg-[#A1B399]/30 rounded-t-lg transition-all" style={{ height: "60%" }} />
-            <span className="text-[9px] uppercase tracking-wider text-neutral-400">Fri</span>
-          </div>
-          <div className="flex-1 flex flex-col items-center gap-2">
-            <div className="w-full bg-[#A1B399]/60 hover:bg-[#A1B399]/70 rounded-t-lg transition-all" style={{ height: "90%" }} />
-            <span className="text-[9px] uppercase tracking-wider text-neutral-400">Sat</span>
-          </div>
-          <div className="flex-1 flex flex-col items-center gap-2">
-            <div className="w-full bg-[#A1B399]/80 hover:bg-[#A1B399]/90 rounded-t-lg transition-all" style={{ height: "100%" }} />
-            <span className="text-[9px] uppercase tracking-wider text-neutral-400">Sun</span>
-          </div>
+        <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC] mb-2">⚡ Recent Operations Log</h2>
+        <div className="flex flex-col divide-y divide-white/0.03">
+          {activities.map((activity) => (
+            <div key={activity.id} className="py-3.5 flex items-center justify-between gap-4 first:pt-0 last:pb-0 hover:bg-white/0.01 transition-colors rounded-lg px-2 -mx-2">
+              <div className="flex items-center gap-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#A1B399]/40" />
+                <span className="text-xs text-neutral-200 font-medium">{activity.text}</span>
+              </div>
+              <span className="text-[9px] uppercase tracking-wider text-neutral-500 font-semibold">{activity.time}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>

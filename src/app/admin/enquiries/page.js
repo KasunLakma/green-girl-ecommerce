@@ -2,43 +2,70 @@ import React from "react";
 
 export default function AdminEnquiriesPage() {
   const mockupEnquiries = [
-    { id: "ENQ-491", name: "Suresh Perera", email: "suresh@example.com", subject: "Customized Gift Packaging", message: "Hi, I wanted to ask if you can do a custom wooden box packaging with engraved initials for the Hamper Standard?", status: "New" },
-    { id: "ENQ-490", name: "Dilini Fernando", email: "dilini.f@example.com", subject: "Bulk Order Discount", message: "Hello! We are looking to order 50 packs of the Handmade Cute Diary Pack for an upcoming corporate event. Do you offer corporate pricing?", status: "Pending" },
-    { id: "ENQ-489", name: "Ruwan Wijesinghe", email: "ruwanw@example.com", subject: "Delivery Location Inquiry", message: "Do you deliver to Galle? The checkout page wasn't loading the shipping options properly.", status: "Resolved" }
+    {
+      id: "ENQ-101",
+      name: "Nishadi Fernando",
+      email: "nishadi@gmail.com",
+      message: "Can I customize the Stitch Plush Toy box with a handwritten birthday note? Please let me know the pricing.",
+      status: "New"
+    },
+    {
+      id: "ENQ-102",
+      name: "Kasun Perera",
+      email: "kasun@gmail.com",
+      message: "Do you provide islandwide delivery for the Handmade Rose Bouquet Hamper? Need it by next Friday.",
+      status: "Replied"
+    }
   ];
 
   return (
     <div className="flex flex-col gap-6 animate-fadeIn">
       <div className="flex flex-col gap-1">
         <h1 className="text-xl font-bold tracking-tight text-white">Customer Enquiries</h1>
-        <p className="text-xs text-neutral-400">Review customer support tickets, customizations, and contact requests.</p>
+        <p className="text-xs text-neutral-400">Review and respond to custom design requests and store inquiries.</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {mockupEnquiries.map((enquiry) => (
-          <div key={enquiry.id} className="bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col gap-4">
-            <div className="flex items-center justify-between border-b border-white/0.05 pb-3">
-              <div className="flex items-center gap-3">
-                <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC]">{enquiry.id}</span>
-                <span className="text-xs font-semibold text-white">{enquiry.subject}</span>
+          <div key={enquiry.id} className="bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col gap-4 justify-between">
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between border-b border-white/0.05 pb-3">
+                <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC]">
+                  {enquiry.id}
+                </span>
+                {enquiry.status === "New" ? (
+                  <span className="flex items-center gap-1.5 bg-[#A1B399]/10 text-[#B2C4AC] px-2.5 py-1 rounded-full text-[10px] font-bold border border-[#A1B399]/10">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#A1B399] animate-pulse" />
+                    New
+                  </span>
+                ) : (
+                  <span className="bg-white/5 text-neutral-400 px-2.5 py-1 rounded-full text-[10px] font-bold border border-white/0.05">
+                    Replied
+                  </span>
+                )}
               </div>
-              <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
-                enquiry.status === "New" ? "bg-rose-500/10 text-rose-400 border-rose-500/10" :
-                enquiry.status === "Pending" ? "bg-amber-500/10 text-amber-400 border-amber-500/10" :
-                "bg-emerald-500/10 text-emerald-400 border-emerald-500/10"
-              }`}>
-                • {enquiry.status}
-              </span>
-            </div>
-            
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-bold tracking-widest uppercase text-neutral-400">From</span>
-              <span className="text-xs text-neutral-200">{enquiry.name} ({enquiry.email})</span>
+
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] font-bold tracking-widest uppercase text-neutral-400">Sender Info</span>
+                <span className="text-xs text-neutral-200 font-semibold">{enquiry.name}</span>
+                <span className="text-[10px] text-neutral-400 font-medium">{enquiry.email}</span>
+              </div>
+
+              <div className="flex flex-col gap-1 mt-2">
+                <span className="text-[10px] font-bold tracking-widest uppercase text-neutral-400">Message Inquiry</span>
+                <p className="text-xs text-neutral-300 leading-relaxed bg-black/20 p-4 rounded-xl border border-white/0.02">
+                  "{enquiry.message}"
+                </p>
+              </div>
             </div>
 
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-bold tracking-widest uppercase text-neutral-400">Message</span>
-              <p className="text-xs text-neutral-300 leading-relaxed bg-black/20 p-4 rounded-xl border border-white/0.02">{enquiry.message}</p>
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button className="text-[10px] font-bold tracking-wider uppercase border border-white/0.05 hover:bg-white/0.05 text-neutral-300 px-4 py-2 rounded-xl transition-all">
+                Dismiss
+              </button>
+              <button className="text-[10px] font-bold tracking-wider uppercase bg-[#A1B399] text-[#0B0E0B] hover:bg-[#B2C4AC] px-4 py-2 rounded-xl transition-all">
+                Respond
+              </button>
             </div>
           </div>
         ))}
