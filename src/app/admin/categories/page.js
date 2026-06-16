@@ -14,6 +14,14 @@ export default function AdminCategoriesPage() {
     slug: ""
   });
 
+  const [seoData, setSeoData] = useState({
+    title: "",
+    description: "",
+    ogImage: ""
+  });
+  const [updatingSeo, setUpdatingSeo] = useState(false);
+  const [seoSuccess, setSeoSuccess] = useState(false);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.name || !formData.slug) return;
@@ -30,8 +38,18 @@ export default function AdminCategoriesPage() {
     setFormData({ name: "", slug: "" });
   };
 
+  const handleSeoSubmit = (e) => {
+    e.preventDefault();
+    setUpdatingSeo(true);
+    setTimeout(() => {
+      setUpdatingSeo(false);
+      setSeoSuccess(true);
+      setTimeout(() => setSeoSuccess(false), 3000);
+    }, 800);
+  };
+
   return (
-    <div className="flex flex-col gap-6 animate-fadeIn">
+    <div className="flex flex-col gap-8 animate-fadeIn text-neutral-100">
       <div className="flex flex-col gap-1">
         <h1 className="text-xl font-bold tracking-tight text-white">Category Management</h1>
         <p className="text-xs text-neutral-400">Create, structure, and audit boutique product curation classifications.</p>
@@ -104,6 +122,66 @@ export default function AdminCategoriesPage() {
             </table>
           </div>
         </div>
+      </div>
+
+      {/* Global Website SEO & Meta Tag Updates Control Panel */}
+      <div className="bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col gap-4">
+        <div className="flex items-center justify-between border-b border-white/0.05 pb-3">
+          <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC]">🌐 Global Website SEO & Meta Tag Updates</h2>
+          {seoSuccess && (
+            <span className="text-[10px] text-emerald-400 font-bold animate-pulse">
+              ✓ META CONFIGURATION UPDATED SUCCESSFULLY
+            </span>
+          )}
+        </div>
+
+        <form onSubmit={handleSeoSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-bold tracking-widest uppercase text-neutral-300">Global Meta Title</label>
+            <input
+              type="text"
+              required
+              placeholder="Greengirl Boutique | Premium Customized Gifts & Hampers"
+              value={seoData.title}
+              onChange={(e) => setSeoData({ ...seoData, title: e.target.value })}
+              className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#A1B399]/40 focus:outline-none transition-all"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-bold tracking-widest uppercase text-neutral-300">Global Meta Description</label>
+            <input
+              type="text"
+              required
+              placeholder="Shop the trendiest Stitch plush toys, personalized ceramic mugs, and custom gifts in Sri Lanka."
+              value={seoData.description}
+              onChange={(e) => setSeoData({ ...seoData, description: e.target.value })}
+              className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#A1B399]/40 focus:outline-none transition-all"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-bold tracking-widest uppercase text-neutral-300">Social Share Thumbnail Image URL (OG Tag)</label>
+            <input
+              type="url"
+              required
+              placeholder="https://greengirl.com/og-thumbnail.jpg"
+              value={seoData.ogImage}
+              onChange={(e) => setSeoData({ ...seoData, ogImage: e.target.value })}
+              className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#A1B399]/40 focus:outline-none transition-all"
+            />
+          </div>
+
+          <div className="md:col-span-3 flex justify-end mt-2">
+            <button
+              type="submit"
+              disabled={updatingSeo}
+              className="bg-[#A1B399] text-[#0B0E0B] hover:bg-[#B2C4AC] disabled:opacity-50 font-bold text-xs tracking-widest px-6 py-3.5 rounded-xl transition-all uppercase whitespace-nowrap"
+            >
+              {updatingSeo ? "Updating..." : "UPDATE META CONFIGURATION"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

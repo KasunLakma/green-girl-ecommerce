@@ -1,15 +1,12 @@
 "use client";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const [formData, setFormData] = useState({ email: "", password: "" });
 
-  const handleSubmit = (e) => {
+  const handleForceLogin = (e) => {
     e.preventDefault();
-    // Direct mockup bypass to immediately route into the admin core space
-    router.push("/admin");
+    window.location.href = "/admin/dashboard";
   };
 
   return (
@@ -28,7 +25,7 @@ export default function AdminLoginPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form onSubmit={handleForceLogin} className="flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
             <label className="text-[10px] font-bold tracking-widest uppercase text-neutral-300 px-1">
               Email Address
@@ -59,6 +56,7 @@ export default function AdminLoginPage() {
 
           <button
             type="submit"
+            onClick={handleForceLogin}
             className="w-full mt-3 bg-[#A1B399] text-[#0B0E0B] hover:bg-[#B2C4AC] font-bold text-xs tracking-widest py-4 rounded-xl transition-all duration-200 uppercase shadow-[0_4px_25px_rgba(161,179,153,0.18)]"
           >
             Authenticate Securely

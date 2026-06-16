@@ -3,6 +3,9 @@ import React, { useState, useEffect } from "react";
 
 export default function AdminDashboardPage() {
   const [catalogCount, setCatalogCount] = useState(14);
+  const [pendingApprovals, setPendingApprovals] = useState([
+    { id: "ORD-9241", items: "1x Customized Ceramic Mug", method: "Cash On Delivery (COD)", status: "Pending" }
+  ]);
 
   useEffect(() => {
     const fetchCatalogCount = async () => {
@@ -20,6 +23,18 @@ export default function AdminDashboardPage() {
     };
     fetchCatalogCount();
   }, []);
+
+  const handleApproveDelivery = (id) => {
+    setPendingApprovals((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, status: "Approved" } : item))
+    );
+  };
+
+  const handleRejectDelivery = (id) => {
+    setPendingApprovals((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, status: "Rejected" } : item))
+    );
+  };
 
   const activities = [
     { id: 1, text: "New order received for Stitch Plush Toy", time: "2 hours ago", type: "order" },
@@ -74,6 +89,60 @@ export default function AdminDashboardPage() {
             <div className="text-2xl font-bold text-white tracking-tight">{catalogCount} Gift Items</div>
             <span className="text-[10px] text-neutral-400 mt-1">Available in public storefront</span>
           </div>
+        </div>
+      </div>
+
+      {/* Delivery Validation Container (directly below metric cards) */}
+      <div className="bg-[#0B0E0B]/40 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col gap-4">
+        <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#B2C4AC] mb-1">⚡ Pending Order & Delivery Approvals</h2>
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-white/0.05 text-[10px] font-bold uppercase tracking-wider text-[#B2C4AC] pb-3">
+                <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Order</th>
+                <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Items</th>
+                <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Method</th>
+                <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC] text-right">Quick Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/0.02">
+              {pendingApprovals.map((approval) => (
+                <tr key={approval.id} className="hover:bg-white/0.01 transition-colors">
+                  <td className="py-3.5 text-xs font-semibold text-neutral-100">{approval.id}</td>
+                  <td className="py-3.5 text-xs text-neutral-300">{approval.items}</td>
+                  <td className="py-3.5 text-xs text-neutral-400">{approval.method}</td>
+                  <td className="py-3.5 text-xs text-right">
+                    {approval.status === "Pending" ? (
+                      <div className="inline-flex gap-2">
+                        <button
+                          onClick={() => handleRejectDelivery(approval.id)}
+                          className="text-[9px] font-bold tracking-wider uppercase bg-white/5 border border-white/0.05 hover:bg-white/10 text-neutral-300 px-3 py-1.5 rounded-xl transition-all"
+                        >
+                          Reject
+                        </button>
+                        <button
+                          onClick={() => handleApproveDelivery(approval.id)}
+                          className="text-[9px] font-bold tracking-wider uppercase bg-[#A1B399] text-[#0B0E0B] hover:bg-[#B2C4AC] px-3 py-1.5 rounded-xl transition-all"
+                        >
+                          Approve Delivery
+                        </button>
+                      </div>
+                    ) : approval.status === "Approved" ? (
+                      <span className="text-[10px] text-emerald-400 font-bold tracking-widest uppercase inline-flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        Approved & Dispatched
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-rose-400 font-bold tracking-widest uppercase inline-flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                        Rejected
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
