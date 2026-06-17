@@ -126,6 +126,15 @@ export default function CheckoutPage() {
       await addDoc(collection(db, "orders"), orderData);
       setOrderId(newOrderId);
       
+      setIsSubmitting(false);
+      localStorage.removeItem('cart');
+      if (clearCart) {
+        clearCart();
+      }
+      alert("Order Placed Successfully!");
+      window.location.href = '/';
+      return;
+
       // Dispatch dual email notifications in the background (non-blocking)
       fetch("/api/send-email", {
         method: "POST",
