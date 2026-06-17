@@ -29,6 +29,13 @@ export default function StorefrontPage() {
 
   const staticProducts = [
     {
+      id: "hardcoded-pen-id",
+      title: "Premium Executive Gel Pen",
+      price: 350,
+      image: "https://images.unsplash.com/photo-1585336261022-675929945037?w=500",
+      description: "Luxury Box wrapping by Greengirl Sri Lanka"
+    },
+    {
       id: "1",
       name: "Stitch Cute Plush Toy",
       category: "Toys & Teddies",

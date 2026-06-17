@@ -1,5 +1,6 @@
 "use client";
 
+import emailjs from '@emailjs/browser';
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -28,7 +29,7 @@ export default function CheckoutPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    phone: "",
+    contactNumber: "",
     address: "",
     district: "Colombo"
   });
@@ -72,98 +73,19 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (process.env.NEXT_PUBLIC_BYPASS_CHECKOUT === 'true' || true) {
-      localStorage.removeItem('cart');
-      alert('Order Placed Successfully!');
-      window.location.href = '/';
-      return;
-    }
-    if (!formData.name || !formData.email || !formData.phone || !formData.address) {
-      alert("Please fill in all the required delivery fields.");
-      return;
-    }
     
-    setIsSubmitting(true);
+    emailjs.send('service_q62ndl4', 'cqvjkdg', {
+      customer_email: formData.email,
+      customer_name: formData.name,
+      contact_number: formData.contactNumber,
+      delivery_address: formData.address,
+      district: formData.district,
+      grand_total: grandTotal
+    }, '_szplL3w-hLlCTExx');
 
-    try {
-      // 1. Resolve firebase authentication (register user if first purchase)
-      let user = auth.currentUser;
-      if (!user) {
-        try {
-          const userCredential = await createUserWithEmailAndPassword(auth, formData.email, "WelcomeToGreengirl123!");
-          user = userCredential.user;
-        } catch (authError) {
-          if (authError.code === "auth/email-already-in-use") {
-            try {
-              const userCredential = await signInWithEmailAndPassword(auth, formData.email, "WelcomeToGreengirl123!");
-              user = userCredential.user;
-            } catch (signInError) {
-              console.error("Sign in failed, linking order by email instead:", signInError);
-            }
-          } else {
-            console.error("Auth creation failed:", authError);
-          }
-        }
-      }
-
-      // 2. Save the order receipt data directly to Firestore
-      const newOrderId = `ORD-${Math.floor(100000 + Math.random() * 900000)}`;
-      const orderData = {
-        orderId: newOrderId,
-        userId: user ? user.uid : formData.email,
-        customerName: formData.name,
-        customerEmail: formData.email,
-        customerPhone: formData.phone,
-        customerAddress: `${formData.address}, ${formData.district}`,
-        paymentMethod: paymentMethod,
-        items: checkoutItems.map(item => ({
-          id: item.id,
-          name: item.name,
-          category: item.category || "Customized Gifts",
-          price: item.price,
-          qty: item.qty || 1,
-          image: item.image || ""
-        })),
-        totalAmount: grandTotal,
-        shippingStatus: "Pending Approval",
-        createdAt: new Date().toISOString()
-      };
-
-      await addDoc(collection(db, "orders"), orderData);
-      setOrderId(newOrderId);
-      
-      setIsSubmitting(false);
-      localStorage.removeItem('cart');
-      if (clearCart) {
-        clearCart();
-      }
-      alert("Order Placed Successfully!");
-      window.location.href = '/';
-      return;
-
-      // Dispatch dual email notifications in the background (non-blocking)
-      fetch("/api/send-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(orderData),
-      }).catch(emailErr => {
-        console.error("Background operational email dispatch failed:", emailErr);
-      });
-
-      // Clear cart
-      if (clearCart) {
-        clearCart();
-      }
-
-      setIsSubmitted(true);
-    } catch (err) {
-      console.error("Checkout submission failed:", err);
-      alert("An error occurred while processing your order. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    localStorage.removeItem('cart');
+    alert('Order Placed Successfully!');
+    window.location.href = '/';
   };
 
   return (
@@ -236,8 +158,8 @@ export default function CheckoutPage() {
                         <input 
                           type="tel" 
                           required
-                          value={formData.phone}
-                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          value={formData.contactNumber}
+                          onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
                           placeholder="e.g. +94 77 123 4567"
                           className="px-4 py-3 rounded-xl bg-black/45 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#B2C4AC] transition-all"
                         />
