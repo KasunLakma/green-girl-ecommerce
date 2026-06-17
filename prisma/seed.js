@@ -76,6 +76,17 @@ async function main() {
       colors: "Blue,Red,Black",
       sizes: "0.5mm,0.7mm",
       imageAlt: "Executive gel pen with blueprint metal body"
+    },
+    {
+      name: "Premium Executive Gel Pen",
+      price: 350.0,
+      category: "Premium Stationery",
+      description: "Luxury Box wrapping by Greengirl Sri Lanka",
+      image: "https://images.unsplash.com/photo-1585336261022-675929945037?w=500",
+      stock: 50,
+      colors: "",
+      sizes: "",
+      imageAlt: "Premium Executive Gel Pen"
     }
   ];
 

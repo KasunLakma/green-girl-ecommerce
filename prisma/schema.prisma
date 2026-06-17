@@ -1,20 +1,22 @@
-datasource db {
-  provider = "postgresql"
-}
-
 generator client {
   provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
 }
 
 model Product {
   id          String   @id @default(uuid())
   name        String
   price       Float
-  category    String   // Can store 'Drinks', 'Specials', 'Merch' based on the frontend form select element
-  description String?  @db.Text
-  colors      String?  @default("")
-  sizes       String?  @default("")
-  imageAlt    String   @default("")
+  category    String
+  description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  colors      String?  @default("")
+  imageAlt    String   @default("")
+  sizes       String?  @default("")
+  image       String?  @default("")
+  stock       Int?     @default(0)
 }
