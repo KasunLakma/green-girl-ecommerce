@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
+
+const resend = new Resend('re_NzE3ZDRiY185M0FFNEM0YTlBMjhDM0VFMjU4QzE2NUI=');
 
 export async function POST(request) {
   try {
@@ -15,16 +17,7 @@ export async function POST(request) {
       paymentMethod 
     } = body;
 
-    // Securely initialize Nodemailer with SMTP transport variables
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || "smtp.gmail.com",
-      port: parseInt(process.env.SMTP_PORT || "587", 10),
-      secure: process.env.SMTP_SECURE === "true", // true for port 465, false for 587
-      auth: {
-        user: process.env.SMTP_USER || "info@greengirl.com",
-        pass: process.env.EMAIL_SERVER_PASSWORD || "abcdefghijklmnop",
-      },
-    });
+
 
     // Invoice 1 (To Customer): HTML template confirming receipt
     const customerHtml = `
@@ -148,27 +141,21 @@ export async function POST(request) {
       </div>
     `;
 
-    // Customer email message layout parameters
-    const mailToCustomer = {
-      from: `"Green Girl Boutique" <${process.env.SMTP_USER || "mock-user@gmail.com"}>`,
+    // First, call await resend.emails.send({...}) targeting the email address entered by the customer in the checkout form payload. Set the subject to "Green Girl - Order Confirmed!" and write a clean HTML message body summarizing the receipt details.
+    await resend.emails.send({
+      from: 'Green Girl <onboarding@resend.dev>',
       to: customerEmail,
-      subject: `Order Confirmation #${orderId} - Pending Approval`,
+      subject: "Green Girl - Order Confirmed!",
       html: customerHtml,
-    };
+    });
 
-    // Store Admin operational email alert parameters
-    const mailToAdmin = {
-      from: `"Green Girl System" <${process.env.SMTP_USER || "mock-user@gmail.com"}>`,
-      to: process.env.ADMIN_EMAIL || process.env.SMTP_USER || "admin@greengirl.com",
-      subject: `[NEW ORDER] Ref #${orderId} - Action Required`,
+    // Second, immediately call await resend.emails.send({...}) targeting the administrator's operational email "admin@greengirl.com". Set the subject to "ALERT: New Order Received!" and pass the customer billing contact details string natively inside the body.
+    await resend.emails.send({
+      from: 'Green Girl <onboarding@resend.dev>',
+      to: "admin@greengirl.com",
+      subject: "ALERT: New Order Received!",
       html: adminHtml,
-    };
-
-    // Dispatch emails concurrently
-    await Promise.all([
-      transporter.sendMail(mailToCustomer),
-      transporter.sendMail(mailToAdmin),
-    ]);
+    });
 
     return NextResponse.json({ success: true, message: "Emails dispatched successfully." });
   } catch (error) {
