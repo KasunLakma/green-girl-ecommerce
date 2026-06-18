@@ -67,14 +67,12 @@ export default async function Home() {
 
     const dbProducts = await Promise.race([fetchPromise, timeoutPromise]);
 
-    if (!dbProducts || dbProducts.length === 0) {
-      throw new Error("Database query returned empty");
-    }
-
-    products = dbProducts.map((p) => ({
+    const dbProductsMapped = (dbProducts || []).map((p) => ({
       ...p,
       image: p.image && p.image.trim() !== "" ? p.image : "/images/placeholder.jpg"
     }));
+
+    products = [...dbProductsMapped, ...staticProducts];
   } catch (error) {
     console.warn("Database fetch failed or timed out. Falling back to static mockup cards.", error);
     products = staticProducts;
