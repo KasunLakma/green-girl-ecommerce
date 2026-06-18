@@ -35,6 +35,23 @@ export default function AdminProductsPage() {
     }
   };
 
+  const handleDelete = async (id) => {
+    if (!confirm("Are you sure you want to delete this product?")) return;
+    try {
+      const res = await fetch(`/api/products?id=${id}`, {
+        method: "DELETE"
+      });
+      if (res.ok) {
+        const currentLocalItems = JSON.parse(localStorage.getItem('mock_products') || '[]');
+        const updatedLocalItems = currentLocalItems.filter((lp) => lp.id !== id);
+        localStorage.setItem('mock_products', JSON.stringify(updatedLocalItems));
+        setProducts((prev) => prev.filter((p) => p.id !== id));
+      }
+    } catch (err) {
+      console.error("Failed to delete product:", err);
+    }
+  };
+
   const handleEdit = (product) => {
     setEditingProduct(product);
     setFormData({
@@ -249,6 +266,12 @@ export default function AdminProductsPage() {
               onChange={handleFileChange}
               className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#A1B399]/40 focus:outline-none transition-all text-neutral-400 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-semibold file:bg-white/10 file:text-neutral-200 hover:file:bg-white/20"
             />
+            {formData.image && (
+              <div className="mt-2 flex items-center gap-3">
+                <img src={formData.image} alt="Preview" className="w-20 h-20 object-cover rounded-xl border border-white/10" />
+                <span className="text-[10px] text-neutral-450">Current Image Preview</span>
+              </div>
+            )}
           </div>
 
           <button
@@ -304,13 +327,22 @@ export default function AdminProductsPage() {
                         )}
                       </td>
                       <td className="py-3.5 text-xs text-right">
-                        <button
-                          type="button"
-                          onClick={() => handleEdit(product)}
-                          className="bg-white/5 border border-white/10 hover:bg-[#A1B399]/15 hover:border-[#A1B399]/30 text-[#B2C4AC] hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-wider uppercase transition-all"
-                        >
-                          Edit
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleEdit(product)}
+                            className="bg-white/5 border border-white/10 hover:bg-[#A1B399]/15 hover:border-[#A1B399]/30 text-[#B2C4AC] hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-wider uppercase transition-all"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(product.id)}
+                            className="bg-red-950/20 border border-red-900/30 hover:bg-red-600 hover:border-red-500 hover:text-white text-red-400 px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-wider uppercase transition-all"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
