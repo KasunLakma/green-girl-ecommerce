@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, X, Plus, Minus, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export const CartContext = createContext(null);
 
@@ -92,12 +93,12 @@ export default function WebsiteLayout({ children }) {
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <div className="w-full backdrop-blur-md bg-[#0D110D]/35 border border-white/[0.08] px-6 sm:px-8 py-3 rounded-full flex items-center justify-between shadow-[0_12px_40px_rgba(0,0,0,0.7)]">
               {/* Logo */}
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6E856A] to-[#B2C4AC] flex items-center justify-center shadow-[0_0_12px_rgba(178,196,172,0.4)]">
+              <Link href="/" className="flex items-center gap-2 cursor-pointer group">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6E856A] to-[#B2C4AC] flex items-center justify-center shadow-[0_0_12px_rgba(178,196,172,0.4)] group-hover:scale-105 transition-transform">
                   <span className="text-[#0D110D] font-extrabold text-sm tracking-tighter">GG</span>
                 </div>
-                <span className="text-xs font-bold tracking-[0.2em] uppercase text-white">GREEN GIRL</span>
-              </div>
+                <span className="text-xs font-bold tracking-[0.2em] uppercase text-white group-hover:text-[#B2C4AC] transition-colors">GREEN GIRL</span>
+              </Link>
 
               {/* Navigation Links */}
               <nav className="hidden md:flex items-center gap-8">
@@ -106,11 +107,16 @@ export default function WebsiteLayout({ children }) {
                     key={item}
                     onClick={() => {
                       setActiveTab(item);
-                      if (item === "HOME") {
-                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      const isHome = typeof window !== "undefined" && window.location.pathname === "/";
+                      if (!isHome) {
+                        window.location.href = item === "HOME" ? "/" : `/#${item.toLowerCase()}`;
                       } else {
-                        const el = document.getElementById(item.toLowerCase());
-                        if (el) el.scrollIntoView({ behavior: "smooth" });
+                        if (item === "HOME") {
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        } else {
+                          const el = document.getElementById(item.toLowerCase());
+                          if (el) el.scrollIntoView({ behavior: "smooth" });
+                        }
                       }
                     }}
                     className="relative py-1 text-[10px] font-bold tracking-[0.2em] uppercase text-neutral-400 hover:text-white transition-colors duration-250 cursor-pointer active:scale-95 group"
@@ -155,6 +161,74 @@ export default function WebsiteLayout({ children }) {
         <main className="flex-1 w-full relative pointer-events-auto">
           {children}
         </main>
+
+        {/* Luxury Footer */}
+        <footer className="relative w-full border-t border-white/0.05 bg-[#080B08]/90 py-12 px-6 mt-auto">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="flex flex-col gap-4 md:col-span-2">
+              <Link href="/" className="flex items-center gap-2 group">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#6E856A] to-[#B2C4AC] flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <span className="text-[#0D110D] font-extrabold text-[11px] tracking-tighter">GG</span>
+                </div>
+                <span className="text-xs font-bold tracking-[0.2em] uppercase text-white group-hover:text-[#B2C4AC] transition-colors">GREEN GIRL</span>
+              </Link>
+              <p className="text-[11px] text-neutral-400 leading-relaxed max-w-sm">
+                Premium dark luxury storefront. Curating ceramic art pieces, custom hampers, plush toys, and organic items. Built with passion and styled for your aesthetic satisfaction.
+              </p>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              <span className="text-[10px] font-bold tracking-widest uppercase text-white">Navigation</span>
+              <div className="flex flex-col gap-2">
+                {[
+                  { name: "Home", href: "/" },
+                  { name: "Collections", href: "/collections" },
+                  { name: "Custom Gifts", href: "/custom-gifts" },
+                  { name: "Gift Hampers", href: "/gift-hampers" },
+                  { name: "Toys & Teddies", href: "/toys-and-teddies" }
+                ].map(link => (
+                  <Link key={link.name} href={link.href} className="text-[10px] text-neutral-400 hover:text-[#B2C4AC] transition-colors">{link.name}</Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <span className="text-[10px] font-bold tracking-widest uppercase text-white">Contact & Connect</span>
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] text-neutral-400">Colombo, Sri Lanka</span>
+                <span className="text-[10px] text-neutral-400">hello@greengirl.luxury</span>
+                <div className="flex items-center gap-3 mt-2">
+                  <Link href="/" className="p-2 rounded-full bg-white/5 hover:bg-[#B2C4AC]/10 text-neutral-400 hover:text-[#B2C4AC] transition-all">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                    </svg>
+                  </Link>
+                  <Link href="/" className="p-2 rounded-full bg-white/5 hover:bg-[#B2C4AC]/10 text-neutral-400 hover:text-[#B2C4AC] transition-all">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                    </svg>
+                  </Link>
+                  <Link href="/" className="p-2 rounded-full bg-white/5 hover:bg-[#B2C4AC]/10 text-neutral-400 hover:text-[#B2C4AC] transition-all">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="max-w-7xl mx-auto border-t border-white/0.05 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <span className="text-[9px] text-neutral-500 uppercase tracking-widest">
+              © {new Date().getFullYear()} Green Girl Luxury. All rights reserved.
+            </span>
+            <span className="text-[9px] text-neutral-500 uppercase tracking-widest flex items-center gap-1">
+              Powered by <span className="text-[#B2C4AC] font-bold">Next.js 16 & Tailwind v4</span>
+            </span>
+          </div>
+        </footer>
 
         {/* Cart Drawer - High-priority overlays z-[200] */}
         <AnimatePresence>

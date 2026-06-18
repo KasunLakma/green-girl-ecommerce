@@ -24,6 +24,7 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [orderId, setOrderId] = useState("");
   const [formData, setFormData] = useState({
     name: "",
@@ -72,32 +73,45 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setIsProcessing(true);
     try {
-      // Direct REST API call to EmailJS servers
-      await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-        method: 'POST',
+      const response = await fetch("/api/checkout", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          service_id: 'service_q62ndl4',
-          template_id: 'cqvjkdg',
-          user_id: '_szplL3w-hLlCTExx',
-          template_params: {
-            to_name: 'Kasun Lakmal',
-            from_name: 'Green Girl Boutique',
-            message: 'Your order for Premium Executive Gel Pen has been placed successfully. Total Amount: Rs. 350.',
-            reply_to: 'kasunlakmal20487ks1@gmail.com'
-          }
-        })
+          name: formData.name,
+          email: formData.email,
+          contactNumber: formData.contactNumber,
+          address: formData.address,
+          district: formData.district,
+          totalAmount: grandTotal,
+          paymentMethod: paymentMethod,
+        }),
       });
 
-      localStorage.removeItem('cart');
-      alert('Order Placed Successfully!');
-      window.location.href = '/';
+      if (!response.ok) {
+        throw new Error("Checkout submission failed");
+      }
+
+      const result = await response.json();
+      
+      localStorage.removeItem("cart");
+      if (clearCart) {
+        clearCart();
+      }
+      
+      // Redirect to thank-you success page
+      const orderRef = result.orderReference || "ORD-" + Math.floor(1000 + Math.random() * 9000);
+      window.location.href = `/thank-you?orderId=${encodeURIComponent(orderRef)}&name=${encodeURIComponent(formData.name)}&email=${encodeURIComponent(formData.email)}&paymentMethod=${encodeURIComponent(paymentMethod)}`;
     } catch (err) {
-      localStorage.removeItem('cart');
-      window.location.href = '/';
+      console.error(err);
+      alert("Failed to process transaction. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+      setIsProcessing(false);
     }
   };
 
@@ -125,11 +139,11 @@ export default function CheckoutPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
+              className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full"
             >
               
               {/* Left Column: Customer Information & Delivery Form */}
-              <div className="lg:col-span-7 flex flex-col gap-6">
+              <div className="w-full lg:col-span-7 flex flex-col gap-6">
                 <div className="hype-glass p-6 sm:p-8 border border-white/0.05 flex flex-col gap-6">
                   <div className="flex flex-col gap-2">
                     <h1 className="text-2xl font-extrabold tracking-tight text-white uppercase">Delivery Details</h1>
@@ -297,7 +311,7 @@ export default function CheckoutPage() {
               </div>
 
               {/* Right Column: Order Summary & Invoice Breakdown */}
-              <div className="lg:col-span-5 lg:sticky lg:top-32 flex flex-col gap-6">
+              <div className="w-full static lg:sticky lg:top-32 flex flex-col gap-6 lg:col-span-5 mt-6 lg:mt-0">
                 <div className="bg-[#0B0E0B]/50 backdrop-blur-md border border-white/0.05 p-6 rounded-2xl flex flex-col gap-6 shadow-[0_12px_40px_rgba(0,0,0,0.6)]">
                   <h2 className="text-sm font-extrabold tracking-[0.2em] uppercase text-white pb-3 border-b border-white/0.05">Order Summary</h2>
                   
@@ -360,10 +374,10 @@ export default function CheckoutPage() {
                   <button 
                     type="submit"
                     form="checkout-delivery-form"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isProcessing}
                     className="w-full py-4 bg-[#B2C4AC] disabled:opacity-50 text-[#0D110D] hover:bg-[#A1B399] rounded-full font-black text-xs tracking-[0.2em] uppercase transition-all duration-300 shadow-[0_0_20px_rgba(178,196,172,0.2)] hover:shadow-[0_0_35px_rgba(178,196,172,0.5)] active:scale-98 cursor-pointer flex items-center justify-center gap-2"
                   >
-                    {isSubmitting ? "PROCESSING TRANSACTION..." : (
+                    {isSubmitting || isProcessing ? "PROCESSING TRANSACTION..." : (
                       <>
                         {paymentMethod === "cod" && "PLACE ORDER VIA CASH ON DELIVERY"}
                         {paymentMethod === "card" && "PAY VIA VISA / MASTERCARD"}
