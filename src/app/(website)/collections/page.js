@@ -65,7 +65,7 @@ export default async function CollectionsPage() {
   const standardProducts = products.filter(p => !premiumProducts.includes(p));
 
   return (
-    <div className="min-h-screen w-full bg-[#050705] text-white pt-32 pb-20 px-4 relative overflow-x-hidden">
+    <div className="min-h-screen w-full bg-[#050705] text-white pt-32 pb-20 px-4 md:px-8 relative overflow-x-hidden">
       {/* Background radial gradient glow matching brand aesthetics */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120vw] h-[60vh] bg-gradient-to-b from-[#354236]/30 via-transparent to-transparent blur-[120px] pointer-events-none z-0" />
 
