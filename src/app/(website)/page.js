@@ -6,6 +6,7 @@ import {
   Mail
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+export const dynamic = 'force-dynamic';
 import HeroSection from "./HeroSection";
 import ProductCard from "./ProductCard";
 import QuickViewModal from "./QuickViewModal";
