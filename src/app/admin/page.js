@@ -28,6 +28,7 @@ export default function AdminProductsPage() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
+        // Save this reader.result base64 string directly inside your image state wrapper
         setFormData((prev) => ({ ...prev, image: reader.result }));
       };
       reader.readAsDataURL(file);

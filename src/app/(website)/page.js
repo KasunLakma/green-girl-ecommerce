@@ -58,6 +58,7 @@ export default async function Home() {
   let products = [];
 
   try {
+    // Query dynamic database products and merge seamlessly with fallback mock items
     const activeProducts = await prisma.product.findMany({ orderBy: { createdAt: 'desc' } });
 
     const dbProductsMapped = (activeProducts || []).map((p) => ({

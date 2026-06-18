@@ -63,17 +63,18 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json();
+    const { name, price, description, image, category, colors, sizes, imageAlt } = body;
     
     const queryPromise = prisma.product.create({
       data: {
-        name: body.name,
-        price: parseFloat(body.price) || 0,
-        category: body.category,
-        description: body.description || "",
-        colors: body.colors || "",
-        sizes: body.sizes || "",
-        imageAlt: body.imageAlt || "",
-        image: body.image || "",
+        name,
+        price: parseFloat(price) || 0,
+        category,
+        description: description || "",
+        colors: colors || "",
+        sizes: sizes || "",
+        imageAlt: imageAlt || "",
+        image: image || "",
       }
     });
 
@@ -88,8 +89,14 @@ export async function POST(request) {
       const mockId = `mock-prod-${Math.floor(100000 + Math.random() * 900000)}`;
       const mockProduct = {
         id: mockId,
-        ...body,
-        price: parseFloat(body.price) || 0,
+        name,
+        price: parseFloat(price) || 0,
+        description,
+        image,
+        category,
+        colors,
+        sizes,
+        imageAlt,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
