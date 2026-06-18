@@ -107,6 +107,10 @@ export default function WebsiteLayout({ children }) {
                     key={item}
                     onClick={() => {
                       setActiveTab(item);
+                      if (item === "COLLECTIONS") {
+                        window.location.href = "/collections";
+                        return;
+                      }
                       const isHome = typeof window !== "undefined" && window.location.pathname === "/";
                       if (!isHome) {
                         window.location.href = item === "HOME" ? "/" : `/#${item.toLowerCase()}`;
