@@ -111,7 +111,7 @@ export default async function Home() {
       </section>
 
       {/* Featured List / New Collection Grid */}
-      <section id="collections" className="relative w-full max-w-5xl mx-auto px-4 py-20 scroll-mt-24">
+      <section id="collections" className="relative w-full max-w-7xl mx-auto px-4 py-20 scroll-mt-24">
         {/* Title Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="flex flex-col gap-2">
@@ -127,7 +127,7 @@ export default async function Home() {
         </div>
 
         {/* Grid Loop */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-8">
           {products.map((product, index) => (
             <ProductCard key={product.id} product={product} index={index} />
           ))}
