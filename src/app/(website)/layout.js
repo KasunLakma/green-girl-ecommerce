@@ -111,6 +111,10 @@ export default function WebsiteLayout({ children }) {
                         window.location.href = "/collections";
                         return;
                       }
+                      if (item === "SPECIALS") {
+                        window.location.href = "/specials";
+                        return;
+                      }
                       const isHome = typeof window !== "undefined" && window.location.pathname === "/";
                       if (!isHome) {
                         window.location.href = item === "HOME" ? "/" : `/#${item.toLowerCase()}`;
@@ -187,6 +191,7 @@ export default function WebsiteLayout({ children }) {
                 {[
                   { name: "Home", href: "/" },
                   { name: "Collections", href: "/collections" },
+                  { name: "Specials", href: "/specials" },
                   { name: "Custom Gifts", href: "/custom-gifts" },
                   { name: "Gift Hampers", href: "/gift-hampers" },
                   { name: "Toys & Teddies", href: "/toys-and-teddies" }
