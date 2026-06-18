@@ -1,18 +1,20 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { 
   Gift, 
   Truck, 
   RefreshCw,
-  Mail
+  Mail,
+  Sparkles,
+  ArrowRight
 } from "lucide-react";
-import { prisma } from "@/lib/prisma";
-export const dynamic = 'force-dynamic';
-import HeroSection from "./HeroSection";
+import gsap from "gsap";
 import ProductCard from "./ProductCard";
 import QuickViewModal from "./QuickViewModal";
 import NewsletterForm from "./NewsletterForm";
 
-export default async function Home() {
+export default function Home() {
   const staticProducts = [
     {
       id: "1",
@@ -46,22 +48,33 @@ export default async function Home() {
     }
   ];
 
-  let products = [];
+  const [products, setProducts] = useState(staticProducts);
 
-  try {
-    // Query dynamic database products and merge seamlessly with remaining fallback mock items
-    const activeProducts = await prisma.product.findMany({ orderBy: { createdAt: 'desc' } });
+  useEffect(() => {
+    // 1. Fetch live products from database API safely
+    const loadProducts = async () => {
+      try {
+        const res = await fetch("/api/products");
+        if (res.ok) {
+          const data = await res.json();
+          const dbProductsMapped = (data || []).map((p) => ({
+            ...p,
+            image: p.image && p.image.trim() !== "" ? p.image : "/images/placeholder.jpg"
+          }));
+          setProducts([...dbProductsMapped, ...staticProducts]);
+        }
+      } catch (err) {
+        console.warn("Client database fetch failed. Using fallbacks.", err);
+      }
+    };
+    loadProducts();
 
-    const dbProductsMapped = (activeProducts || []).map((p) => ({
-      ...p,
-      image: p.image && p.image.trim() !== "" ? p.image : "/images/placeholder.jpg"
-    }));
-
-    products = [...dbProductsMapped, ...staticProducts];
-  } catch (error) {
-    console.warn("Database fetch failed or timed out. Falling back to static mockup cards.", error);
-    products = staticProducts;
-  }
+    // 2. GSAP Reveal Animation
+    gsap.fromTo(".hero-title-reveal", 
+      { opacity: 0, y: 50 }, 
+      { opacity: 1, y: 0, duration: 1.2, ease: "power4.out", stagger: 0.2, delay: 0.3 }
+    );
+  }, []);
 
   return (
     <div className="relative z-10 min-h-screen w-full flex flex-col select-none overflow-x-hidden bg-[#0D110D]">
@@ -75,7 +88,43 @@ export default async function Home() {
       </head>
       
       {/* Interactive Hero Banner Section */}
-      <HeroSection />
+      <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center pt-28 px-4 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div 
+            style={{ backgroundImage: "url('/hero-gift-shop.jpg')" }}
+            className="w-full h-full bg-cover bg-center scale-105" 
+          />
+          <div className="absolute inset-0 bg-[#050705]/55" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0D110D]" />
+        </div>
+
+        <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center text-center">
+          <div className="flex flex-col items-center gap-6">
+            <div className="hero-title-reveal inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm text-[10px] tracking-[0.25em] text-[#B2C4AC] uppercase font-bold">
+              <Sparkles className="w-3.5 h-3.5 text-[#B2C4AC] animate-pulse" /> Established Curator of Rare Objects
+            </div>
+
+            <h1 className="hero-title-reveal text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-tight text-white max-w-4xl">
+              Crafted with Love, <br />
+              <span className="bg-gradient-to-r from-white via-[#B2C4AC] to-[#B2C4AC] bg-clip-text text-transparent font-black">Styled for You</span>
+            </h1>
+
+            <p className="hero-title-reveal hype-glass px-6 py-4 max-w-2xl mx-auto border border-white/0.08 shadow-[0_8px_32px_rgba(0,0,0,0.5)] text-sm sm:text-base text-neutral-350 font-medium tracking-wide leading-relaxed">
+              Discover a curated selection of luxury boutique gift items, matte ceramics, rare flora, and custom-crafted hampers made for the discerning collector.
+            </p>
+
+            <div className="hero-title-reveal mt-4">
+              <a 
+                href="#collections"
+                className="group relative px-8 py-4 bg-[#B2C4AC] text-[#0D110D] rounded-full font-bold tracking-[0.2em] text-[10px] uppercase shadow-[0_0_20px_rgba(178,196,172,0.3)] hover:shadow-[0_0_35px_rgba(178,196,172,0.65)] hover:bg-[#A1B399] active:scale-95 transition-all duration-300 flex items-center gap-2.5 cursor-pointer"
+              >
+                Explore Boutique
+                <ArrowRight className="w-4 h-4 text-[#0D110D] group-hover:translate-x-1.5 transition-transform duration-300" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Boutique Values Row */}
       <section id="specials" className="relative w-full max-w-5xl mx-auto px-4 py-16 scroll-mt-24">
@@ -205,7 +254,7 @@ export default async function Home() {
             <span className="text-[10px] font-bold tracking-widest uppercase text-white">Contact & Connect</span>
             <div className="flex flex-col gap-2">
               <span className="text-[10px] text-neutral-400">Colombo, Sri Lanka</span>
-              <span className="text-[10px] text-neutral-400">hello@greengirl.luxury</span>
+              <span className="text-[10px] text-neutral-450">hello@greengirl.luxury</span>
               <div className="flex items-center gap-3 mt-2">
                 <a href="#" className="p-2 rounded-full bg-white/5 hover:bg-[#B2C4AC]/10 text-neutral-400 hover:text-[#B2C4AC] transition-all">
                   <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
