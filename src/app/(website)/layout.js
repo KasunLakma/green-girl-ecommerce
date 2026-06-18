@@ -81,7 +81,7 @@ export default function WebsiteLayout({ children }) {
 
   const cartTotal = cartItems.reduce((acc, item) => acc + item.priceNum * item.quantity, 0);
 
-  const navItems = ["HOME", "COLLECTIONS", "SPECIALS", "ABOUT"];
+  const navItems = ["HOME", "COLLECTIONS", "SPECIALS"];
 
   return (
     <CartContext.Provider value={{ cartItems, cartCount, cartTotal, addToCart, updateQuantity, removeFromCart, cartOpen, setCartOpen, quickViewProduct, setQuickViewProduct }}>
@@ -194,7 +194,8 @@ export default function WebsiteLayout({ children }) {
                   { name: "Specials", href: "/specials" },
                   { name: "Custom Gifts", href: "/custom-gifts" },
                   { name: "Gift Hampers", href: "/gift-hampers" },
-                  { name: "Toys & Teddies", href: "/toys-and-teddies" }
+                  { name: "Toys & Teddies", href: "/toys-and-teddies" },
+                  { name: "About Us", href: "/about" }
                 ].map(link => (
                   <Link key={link.name} href={link.href} className="text-[10px] text-neutral-400 hover:text-[#B2C4AC] transition-colors">{link.name}</Link>
                 ))}
