@@ -160,7 +160,7 @@ export default function CheckoutPage() {
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="e.g. Kasun Lakmal"
-                        className="px-4 py-3 rounded-xl bg-black/45 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#B2C4AC] transition-all"
+                        className="px-4 py-3 rounded-xl bg-black/45 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#B2C4AC] focus:ring-2 focus:ring-[#B2C4AC]/50 transition-all"
                       />
                     </div>
 
@@ -175,7 +175,7 @@ export default function CheckoutPage() {
                           value={formData.email}
                           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                           placeholder="e.g. user@domain.com"
-                          className="px-4 py-3 rounded-xl bg-black/45 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#B2C4AC] transition-all"
+                          className="px-4 py-3 rounded-xl bg-black/45 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#B2C4AC] focus:ring-2 focus:ring-[#B2C4AC]/50 transition-all"
                         />
                       </div>
 
@@ -188,7 +188,7 @@ export default function CheckoutPage() {
                           value={formData.contactNumber}
                           onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
                           placeholder="e.g. +94 77 123 4567"
-                          className="px-4 py-3 rounded-xl bg-black/45 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#B2C4AC] transition-all"
+                          className="px-4 py-3 rounded-xl bg-black/45 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#B2C4AC] focus:ring-2 focus:ring-[#B2C4AC]/50 transition-all"
                         />
                       </div>
                     </div>
@@ -202,7 +202,7 @@ export default function CheckoutPage() {
                         value={formData.address}
                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                         placeholder="e.g. 12/3 Park Avenue, Colombo 07"
-                        className="px-4 py-3 rounded-xl bg-black/45 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#B2C4AC] transition-all resize-none"
+                        className="px-4 py-3 rounded-xl bg-black/45 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#B2C4AC] focus:ring-2 focus:ring-[#B2C4AC]/50 transition-all resize-none"
                       />
                     </div>
 
@@ -212,7 +212,7 @@ export default function CheckoutPage() {
                       <select
                         value={formData.district}
                         onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                        className="px-4 py-3 rounded-xl bg-black/45 border border-white/10 text-xs text-white focus:outline-none focus:border-[#B2C4AC] transition-all cursor-pointer [&>option]:bg-[#0D110D] [&>option]:text-white"
+                        className="px-4 py-3 rounded-xl bg-black/45 border border-white/10 text-xs text-white focus:outline-none focus:border-[#B2C4AC] focus:ring-2 focus:ring-[#B2C4AC]/50 transition-all cursor-pointer [&>option]:bg-[#0D110D] [&>option]:text-white"
                       >
                         {districts.map((d) => (
                           <option key={d} value={d}>{d}</option>

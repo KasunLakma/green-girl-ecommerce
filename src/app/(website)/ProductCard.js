@@ -128,7 +128,7 @@ export default function ProductCard({ product, index }) {
                 />
               ))}
             </div>
-            <span className="text-[10px] text-neutral-400 font-bold ml-1">{productRating.toFixed(1)}</span>
+            <span className="text-[10px] text-zinc-100 font-bold ml-1">{productRating.toFixed(1)}</span>
           </div>
         </div>
       </div>

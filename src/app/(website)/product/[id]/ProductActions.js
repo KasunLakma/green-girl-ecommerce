@@ -29,7 +29,7 @@ export default function ProductActions({ product }) {
       {/* Colors Attribute */}
       {colorsList.length > 0 && (
         <div className="flex flex-col gap-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-450">Available Colors</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-200">Available Colors</span>
           <div className="flex flex-wrap gap-2">
             {colorsList.map((color) => (
               <button
@@ -51,7 +51,7 @@ export default function ProductActions({ product }) {
       {/* Sizes Attribute */}
       {sizesList.length > 0 && (
         <div className="flex flex-col gap-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-450">Available Sizes</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-200">Available Sizes</span>
           <div className="flex flex-wrap gap-2">
             {sizesList.map((size) => (
               <button

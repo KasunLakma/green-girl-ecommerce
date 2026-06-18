@@ -68,7 +68,7 @@ export default function AdminCategoriesPage() {
               placeholder="e.g. Wooden Crafts"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") })}
-              className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#A1B399]/40 focus:outline-none transition-all"
+              className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#B2C4AC] focus:ring-2 focus:ring-[#B2C4AC]/50 focus:outline-none transition-all"
             />
           </div>
 
@@ -80,7 +80,7 @@ export default function AdminCategoriesPage() {
               placeholder="e.g. wooden-crafts"
               value={formData.slug}
               onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-              className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#A1B399]/40 focus:outline-none transition-all"
+              className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#B2C4AC] focus:ring-2 focus:ring-[#B2C4AC]/50 focus:outline-none transition-all"
             />
           </div>
 
@@ -144,7 +144,7 @@ export default function AdminCategoriesPage() {
               placeholder="Greengirl Boutique | Premium Customized Gifts & Hampers"
               value={seoData.title}
               onChange={(e) => setSeoData({ ...seoData, title: e.target.value })}
-              className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#A1B399]/40 focus:outline-none transition-all"
+              className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#B2C4AC] focus:ring-2 focus:ring-[#B2C4AC]/50 focus:outline-none transition-all"
             />
           </div>
 
@@ -156,7 +156,7 @@ export default function AdminCategoriesPage() {
               placeholder="Shop the trendiest Stitch plush toys, personalized ceramic mugs, and custom gifts in Sri Lanka."
               value={seoData.description}
               onChange={(e) => setSeoData({ ...seoData, description: e.target.value })}
-              className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#A1B399]/40 focus:outline-none transition-all"
+              className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#B2C4AC] focus:ring-2 focus:ring-[#B2C4AC]/50 focus:outline-none transition-all"
             />
           </div>
 
@@ -168,7 +168,7 @@ export default function AdminCategoriesPage() {
               placeholder="https://greengirl.com/og-thumbnail.jpg"
               value={seoData.ogImage}
               onChange={(e) => setSeoData({ ...seoData, ogImage: e.target.value })}
-              className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#A1B399]/40 focus:outline-none transition-all"
+              className="w-full bg-black/40 border border-white/0.08 rounded-xl px-4 py-3 text-xs text-neutral-200 focus:border-[#B2C4AC] focus:ring-2 focus:ring-[#B2C4AC]/50 focus:outline-none transition-all"
             />
           </div>
 

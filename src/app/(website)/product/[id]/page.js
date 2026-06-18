@@ -160,14 +160,14 @@ export default async function ProductDetailPage({ params }) {
 
             {/* Price section */}
             <div className="py-4 border-y border-white/0.05 flex items-center justify-between">
-              <span className="text-xs font-bold text-neutral-400 uppercase tracking-wider">Boutique Retail Price</span>
-              <span className="text-2xl sm:text-3xl font-black text-[#B2C4AC] tracking-tight">{productPrice}</span>
+              <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Boutique Retail Price</span>
+              <span className="text-2xl sm:text-3xl font-black text-emerald-400 tracking-tight">{productPrice}</span>
             </div>
 
             {/* Description */}
             <div className="flex flex-col gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Product Overview</span>
-              <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed font-light">{productDescription}</p>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-200">Product Overview</span>
+              <p className="text-xs sm:text-sm text-zinc-100 leading-relaxed font-light">{productDescription}</p>
             </div>
 
             {/* Client product actions (Color/Size selection & Add to Cart) */}
