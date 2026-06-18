@@ -15,15 +15,6 @@ import NewsletterForm from "./NewsletterForm";
 export default async function Home() {
   const staticProducts = [
     {
-      id: "hardcoded-pen-id",
-      name: "Premium Executive Gel Pen",
-      price: 350,
-      image: "https://images.unsplash.com/photo-1585336261022-675929945037?w=500",
-      description: "Luxury Box wrapping by Greengirl Sri Lanka",
-      category: "Premium Stationery",
-      tag: "PREMIUM"
-    },
-    {
       id: "1",
       name: "Stitch Cute Plush Toy",
       category: "Toys & Teddies",
@@ -58,17 +49,15 @@ export default async function Home() {
   let products = [];
 
   try {
-    // Query dynamic database products and render ONLY them if database is not empty.
+    // Query dynamic database products and merge seamlessly with remaining fallback mock items
     const activeProducts = await prisma.product.findMany({ orderBy: { createdAt: 'desc' } });
 
-    if (activeProducts && activeProducts.length > 0) {
-      products = activeProducts.map((p) => ({
-        ...p,
-        image: p.image && p.image.trim() !== "" ? p.image : "/images/placeholder.jpg"
-      }));
-    } else {
-      products = staticProducts;
-    }
+    const dbProductsMapped = (activeProducts || []).map((p) => ({
+      ...p,
+      image: p.image && p.image.trim() !== "" ? p.image : "/images/placeholder.jpg"
+    }));
+
+    products = [...dbProductsMapped, ...staticProducts];
   } catch (error) {
     console.warn("Database fetch failed or timed out. Falling back to static mockup cards.", error);
     products = staticProducts;
