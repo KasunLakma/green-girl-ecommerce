@@ -58,15 +58,17 @@ export default async function Home() {
   let products = [];
 
   try {
-    // Query dynamic database products and merge seamlessly with fallback mock items
+    // Query dynamic database products and render ONLY them if database is not empty.
     const activeProducts = await prisma.product.findMany({ orderBy: { createdAt: 'desc' } });
 
-    const dbProductsMapped = (activeProducts || []).map((p) => ({
-      ...p,
-      image: p.image && p.image.trim() !== "" ? p.image : "/images/placeholder.jpg"
-    }));
-
-    products = [...dbProductsMapped, ...staticProducts];
+    if (activeProducts && activeProducts.length > 0) {
+      products = activeProducts.map((p) => ({
+        ...p,
+        image: p.image && p.image.trim() !== "" ? p.image : "/images/placeholder.jpg"
+      }));
+    } else {
+      products = staticProducts;
+    }
   } catch (error) {
     console.warn("Database fetch failed or timed out. Falling back to static mockup cards.", error);
     products = staticProducts;
