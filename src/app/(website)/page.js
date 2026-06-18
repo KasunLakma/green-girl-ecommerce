@@ -58,16 +58,9 @@ export default async function Home() {
   let products = [];
 
   try {
-    const fetchPromise = prisma.product.findMany({ orderBy: { createdAt: "desc" } });
-    
-    // Create an 800ms timeout rejection to fulfill structural timeout request
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Database connection timeout")), 800)
-    );
+    const activeProducts = await prisma.product.findMany({ orderBy: { createdAt: 'desc' } });
 
-    const dbProducts = await Promise.race([fetchPromise, timeoutPromise]);
-
-    const dbProductsMapped = (dbProducts || []).map((p) => ({
+    const dbProductsMapped = (activeProducts || []).map((p) => ({
       ...p,
       image: p.image && p.image.trim() !== "" ? p.image : "/images/placeholder.jpg"
     }));

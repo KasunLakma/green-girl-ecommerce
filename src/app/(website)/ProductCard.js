@@ -15,15 +15,19 @@ export default function ProductCard({ product, index }) {
   const productPrice = typeof product.price === "number" ? `Rs. ${product.price.toLocaleString()}` : (product.price || "Rs. 0");
   
   // Resolve correct images for database items
-  let productImage = product.image || "/images/rose_hamper.png";
-  if (productName.includes("Stitch")) {
-    productImage = "/images/stitch_toy.png";
-  } else if (productName.includes("Ceramic Mug")) {
-    productImage = "/images/custom_mug.png";
-  } else if (productName.includes("Rose Bouquet")) {
-    productImage = "/images/rose_hamper.png";
-  } else if (productName.includes("Gel Pen")) {
-    productImage = "https://images.unsplash.com/photo-1585336261022-675929945037?w=500";
+  let productImage = product.image || "/images/placeholder.jpg";
+  if (!productImage.startsWith("data:") && !productImage.startsWith("http://") && !productImage.startsWith("https://") && !productImage.startsWith("/")) {
+    if (productName.includes("Stitch")) {
+      productImage = "/images/stitch_toy.png";
+    } else if (productName.includes("Ceramic Mug")) {
+      productImage = "/images/custom_mug.png";
+    } else if (productName.includes("Rose Bouquet")) {
+      productImage = "/images/rose_hamper.png";
+    } else if (productName.includes("Gel Pen")) {
+      productImage = "https://images.unsplash.com/photo-1585336261022-675929945037?w=500";
+    } else {
+      productImage = "/images/placeholder.jpg";
+    }
   }
 
   const productAlt = product.imageAlt || product.alt || `${productName} - Luxury Gift Box wrapping by Greengirl Sri Lanka`;
