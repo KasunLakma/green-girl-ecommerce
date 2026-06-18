@@ -1,39 +1,26 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React from "react";
 import { 
-  Sparkles, 
-  ArrowRight, 
-  Heart, 
   Gift, 
-  Star, 
   Truck, 
   RefreshCw,
-  Mail,
-  X
+  Mail
 } from "lucide-react";
-import { useCart } from "./layout";
-import { useRouter } from "next/navigation";
-import { db } from "../../lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { prisma } from "@/lib/prisma";
+import HeroSection from "./HeroSection";
+import ProductCard from "./ProductCard";
+import QuickViewModal from "./QuickViewModal";
+import NewsletterForm from "./NewsletterForm";
 
-export default function StorefrontPage() {
-  const { addToCart } = useCart();
-  const router = useRouter();
-  const [quickViewProduct, setQuickViewProduct] = useState(null);
-  const [likedProducts, setLikedProducts] = useState({});
-  const [hoveredProduct, setHoveredProduct] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [loadingProducts, setLoadingProducts] = useState(true);
-
+export default async function Home() {
   const staticProducts = [
     {
       id: "hardcoded-pen-id",
-      title: "Premium Executive Gel Pen",
+      name: "Premium Executive Gel Pen",
       price: 350,
       image: "https://images.unsplash.com/photo-1585336261022-675929945037?w=500",
-      description: "Luxury Box wrapping by Greengirl Sri Lanka"
+      description: "Luxury Box wrapping by Greengirl Sri Lanka",
+      category: "Premium Stationery",
+      tag: "PREMIUM"
     },
     {
       id: "1",
@@ -67,54 +54,27 @@ export default function StorefrontPage() {
     }
   ];
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const localItems = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("mock_products") || "[]") : [];
-      const processedLocalItems = localItems.map((item) => {
-        if (!item.image && !(item.images && item.images[0])) {
-          return {
-            ...item,
-            image: "https://images.unsplash.com/photo-1585336261022-675929945037?w=500"
-          };
-        }
-        return item;
-      });
+  let products = [];
 
-      try {
-        const fetchPromise = (async () => {
-          const querySnapshot = await getDocs(collection(db, "products"));
-          const items = [];
-          querySnapshot.forEach((doc) => {
-            items.push({ id: doc.id, ...doc.data() });
-          });
-          return items;
-        })();
+  try {
+    const fetchPromise = prisma.product.findMany({ orderBy: { createdAt: "desc" } });
+    
+    // Create an 800ms timeout rejection to fulfill structural timeout request
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Database connection timeout")), 800)
+    );
 
-        const timeoutPromise = new Promise((resolve) =>
-          setTimeout(() => resolve("timeout"), 800)
-        );
+    const dbProducts = await Promise.race([fetchPromise, timeoutPromise]);
 
-        const result = await Promise.race([fetchPromise, timeoutPromise]);
-
-        if (result === "timeout") {
-          console.warn("Live database fetch timed out after 800ms. Loading fallback.");
-          const merged = [...processedLocalItems, ...staticProducts.filter((p) => !processedLocalItems.some((c) => c.id === p.id))];
-          setProducts(merged);
-        } else {
-          const initialProducts = result.length > 0 ? result : staticProducts;
-          const merged = [...processedLocalItems, ...initialProducts.filter((p) => !processedLocalItems.some((c) => c.id === p.id))];
-          setProducts(merged);
-        }
-      } catch (error) {
-        console.error("Error fetching products from Firestore:", error);
-        const merged = [...processedLocalItems, ...staticProducts.filter((p) => !processedLocalItems.some((c) => c.id === p.id))];
-        setProducts(merged);
-      } finally {
-        setLoadingProducts(false);
-      }
-    };
-    fetchProducts();
-  }, []);
+    if (dbProducts && dbProducts.length > 0) {
+      products = dbProducts;
+    } else {
+      products = staticProducts;
+    }
+  } catch (error) {
+    console.warn("Database fetch failed or timed out. Falling back to static mockup cards.", error);
+    products = staticProducts;
+  }
 
   return (
     <div className="relative z-10 min-h-screen w-full flex flex-col select-none overflow-x-hidden bg-[#0D110D]">
@@ -128,62 +88,7 @@ export default function StorefrontPage() {
       </head>
       
       {/* Interactive Hero Banner Section */}
-      <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center pt-28 px-4 overflow-hidden">
-        {/* Ambient glowing canvas behind */}
-        <div className="absolute inset-0 z-0">
-          <div 
-            style={{ backgroundImage: "url('/hero-gift-shop.jpg')" }}
-            className="w-full h-full bg-cover bg-center scale-105" 
-          />
-          <div className="absolute inset-0 bg-[#050705]/55" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0D110D]" />
-        </div>
-
-        <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col items-center gap-6"
-          >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm text-[10px] tracking-[0.25em] text-[#B2C4AC] uppercase font-bold">
-              <Sparkles className="w-3.5 h-3.5 text-[#B2C4AC] animate-pulse" /> Established Curator of Rare Objects
-            </div>
-
-            <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white leading-[1.15] max-w-4xl">
-              Crafted with Love, <br />
-              <span className="bg-gradient-to-r from-white via-[#B2C4AC] to-[#B2C4AC] bg-clip-text text-transparent">Styled for You</span>
-            </h1>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-              className="hype-glass px-6 py-4 max-w-2xl mx-auto border border-white/0.08 shadow-[0_8px_32px_rgba(0,0,0,0.5)] text-sm sm:text-base text-neutral-350 font-medium tracking-wide leading-relaxed"
-            >
-              Discover a curated selection of luxury boutique gift items, matte ceramics, rare flora, and custom-crafted hampers made for the discerning collector.
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="mt-4"
-            >
-              <button 
-                onClick={() => {
-                  const el = document.getElementById("collections");
-                  el?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className="group relative px-8 py-4 bg-[#B2C4AC] text-[#0D110D] rounded-full font-bold tracking-[0.2em] text-[10px] uppercase shadow-[0_0_20px_rgba(178,196,172,0.3)] hover:shadow-[0_0_35px_rgba(178,196,172,0.65)] hover:bg-[#A1B399] active:scale-95 transition-all duration-300 flex items-center gap-2.5 cursor-pointer"
-              >
-                Explore Boutique
-                <ArrowRight className="w-4 h-4 text-[#0D110D] group-hover:translate-x-1.5 transition-transform duration-300" />
-              </button>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
+      <HeroSection />
 
       {/* Boutique Values Row */}
       <section id="specials" className="relative w-full max-w-5xl mx-auto px-4 py-16 scroll-mt-24">
@@ -236,139 +141,9 @@ export default function StorefrontPage() {
 
         {/* Grid Loop */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.map((product, index) => {
-            const productName = product.name || product.title || "Luxury Gift Item";
-            const productPrice = typeof product.price === "number" ? `Rs. ${product.price.toLocaleString()}` : (product.price || "Rs. 0");
-            const productImage = product.image || "/images/rose_hamper.png";
-            const productAlt = product.alt || product.imageAlt || `${productName} - Luxury Gift Box wrapping by Greengirl Sri Lanka`;
-            const productCategory = product.category || "Customized Gifts";
-            const productTag = product.tag || "PREMIUM";
-            const productRating = product.rating || 5.0;
-            const productDescription = product.description || "Bespoke custom-crafted luxury gift item.";
-
-            return (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 60 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.8, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}
-                onMouseEnter={() => setHoveredProduct(product.id)}
-                onMouseLeave={() => setHoveredProduct(null)}
-                onClick={() => router.push(`/product/${product.id}`)}
-                className="hype-glass p-4 rounded-[2rem] flex flex-col justify-between group cursor-pointer transition-all duration-500 hover:border-white/15 hover:shadow-[0_24px_50px_rgba(0,0,0,0.7)] border border-white/0.05"
-              >
-                {/* Card Body wrapper */}
-                <div className="flex flex-col gap-4">
-                  {/* Image visual wrapper */}
-                  <div className="overflow-hidden rounded-2xl relative aspect-[4/3] bg-black/40 border border-white/[0.04]">
-                    <img 
-                      src={productImage} 
-                      alt={`${productName} - Luxury Gift Box wrapping by Greengirl Sri Lanka`} 
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
-                    />
-                    {/* Tag overlay */}
-                    <div className="absolute top-3 left-3 bg-[#0D110D]/75 backdrop-blur-md border border-white/10 px-3 py-1 rounded-full text-[9px] font-black tracking-widest text-[#B2C4AC] uppercase shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
-                      {productTag}
-                    </div>
-                    {/* Liked state */}
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLikedProducts(prev => ({ ...prev, [product.id]: !prev[product.id] }));
-                      }}
-                      className="absolute top-3 right-3 p-2 rounded-full bg-[#0D110D]/70 hover:bg-[#0D110D]/90 border border-white/10 text-white hover:text-rose-400 active:scale-90 transition-all cursor-pointer z-20"
-                    >
-                      <Heart 
-                        className={`w-3.5 h-3.5 transition-all ${likedProducts[product.id] ? "fill-rose-500 text-rose-500" : "text-white"}`} 
-                      />
-                    </button>
-                    
-                    {/* Hover details action buttons */}
-                    <div className="absolute inset-0 bg-[#0D110D]/65 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-sm z-10">
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setQuickViewProduct({
-                            ...product,
-                            name: productName,
-                            price: productPrice,
-                            image: productImage,
-                            alt: productAlt,
-                            category: productCategory,
-                            tag: productTag,
-                            rating: productRating,
-                            description: productDescription
-                          });
-                        }}
-                        className="px-4 py-2 rounded-full bg-white text-[#0D110D] font-bold text-[9px] tracking-wider uppercase hover:bg-neutral-200 active:scale-95 transition-all cursor-pointer"
-                      >
-                        Quick View
-                      </button>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          addToCart({
-                            id: product.id,
-                            name: productName,
-                            price: productPrice,
-                            image: productImage,
-                            category: productCategory
-                          });
-                        }}
-                        className="px-4 py-2 rounded-full bg-[#B2C4AC] text-[#0D110D] font-bold text-[9px] tracking-wider uppercase hover:bg-[#A1B399] active:scale-95 transition-all cursor-pointer"
-                      >
-                        Add To Cart
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Details */}
-                  <div className="flex flex-col gap-1 px-1">
-                    <span className="text-[9px] font-bold tracking-widest text-[#B2C4AC] uppercase">
-                      {productCategory}
-                    </span>
-                    <h3 className="text-base font-bold text-white tracking-tight group-hover:text-[#B2C4AC] transition-colors duration-300">
-                      {productName}
-                    </h3>
-                    
-                    {/* Rating */}
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <div className="flex items-center text-amber-400">
-                        {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
-                            className={`w-3 h-3 ${i < Math.floor(productRating) ? "fill-amber-400 text-amber-400" : "text-neutral-700"}`} 
-                          />
-                        ))}
-                      </div>
-                      <span className="text-[10px] text-neutral-400 font-bold ml-1">{productRating.toFixed(1)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Footer inside card */}
-                <div className="flex items-center justify-between border-t border-white/0.05 pt-4 mt-4 px-1">
-                  <div className="text-base font-black text-white tracking-tight">{productPrice}</div>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      addToCart({
-                        id: product.id,
-                        name: productName,
-                        price: productPrice,
-                        image: productImage,
-                        category: productCategory
-                      });
-                    }}
-                    className="text-[9px] font-bold tracking-widest text-[#B2C4AC] uppercase group-hover:text-white transition-colors flex items-center gap-1 hover:underline cursor-pointer"
-                  >
-                    Add +
-                  </button>
-                </div>
-              </motion.div>
-            );
-          })}
+          {products.map((product, index) => (
+            <ProductCard key={product.id} product={product} index={index} />
+          ))}
         </div>
       </section>
 
@@ -407,31 +182,11 @@ export default function StorefrontPage() {
           <Mail className="w-8 h-8 text-[#B2C4AC] mb-2 animate-pulse" />
           <div className="flex flex-col gap-2 max-w-lg">
             <h3 className="text-xl md:text-2xl font-bold tracking-tight text-white">Join The Inner Circle</h3>
-            <p className="text-xs text-neutral-400">
+            <p className="text-xs text-neutral-450">
               Subscribe to receive notification of private product drops, custom wooden crate arrivals, and private collections.
             </p>
           </div>
-          <form 
-            onSubmit={(e) => {
-              e.preventDefault();
-              alert("Thank you for subscribing to our private list!");
-              e.target.reset();
-            }}
-            className="flex flex-col sm:flex-row gap-3 w-full max-w-md mt-2 z-10"
-          >
-            <input 
-              type="email" 
-              required
-              placeholder="Enter your email address" 
-              className="flex-1 px-5 py-3 rounded-full bg-black/45 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#B2C4AC] transition-all"
-            />
-            <button 
-              type="submit" 
-              className="px-6 py-3 bg-[#B2C4AC] text-[#0D110D] rounded-full font-bold text-xs uppercase tracking-widest hover:bg-[#A1B399] transition-all whitespace-nowrap active:scale-95 cursor-pointer"
-            >
-              Subscribe
-            </button>
-          </form>
+          <NewsletterForm />
         </div>
       </section>
 
@@ -498,110 +253,7 @@ export default function StorefrontPage() {
       </footer>
 
       {/* Quick View Modal */}
-      <AnimatePresence>
-        {quickViewProduct && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
-            onClick={() => setQuickViewProduct(null)}
-          >
-            <motion.div 
-              initial={{ scale: 0.9, y: 20, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.9, y: 20, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 220, damping: 22 }}
-              className="w-full max-w-3xl bg-[#0E120E]/95 border border-white/10 rounded-[2rem] overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.8)] flex flex-col md:flex-row"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Left Side - Image */}
-              <div className="w-full md:w-1/2 relative aspect-video md:aspect-auto md:min-h-[400px] bg-black/20">
-                <img 
-                  src={quickViewProduct.image} 
-                  alt={`${quickViewProduct.name} - Luxury Gift Box wrapping by Greengirl Sri Lanka`} 
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-4 left-4 bg-[#0D110D]/80 backdrop-blur-md border border-white/10 px-3 py-1 rounded-full text-[9px] font-black tracking-widest text-[#B2C4AC] uppercase">
-                  {quickViewProduct.tag}
-                </div>
-              </div>
-
-              {/* Right Side - Details */}
-              <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between gap-6">
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[9px] font-black tracking-widest text-[#B2C4AC] uppercase">
-                      {quickViewProduct.category}
-                    </span>
-                    <button 
-                      onClick={() => setQuickViewProduct(null)}
-                      className="p-1.5 rounded-full bg-white/5 border border-white/0.05 text-neutral-400 hover:text-white hover:bg-white/10 cursor-pointer transition-all active:scale-90"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                  
-                  <h2 className="text-xl md:text-2xl font-black text-white tracking-tight leading-tight">
-                    {quickViewProduct.name}
-                  </h2>
-                  
-                  {/* Rating */}
-                  <div className="flex items-center gap-1.5">
-                    <div className="flex items-center text-amber-400">
-                      {[...Array(5)].map((_, i) => (
-                        <Star 
-                          key={i} 
-                          className={`w-3.5 h-3.5 ${i < Math.floor(quickViewProduct.rating) ? "fill-amber-400 text-amber-400" : "text-neutral-700"}`} 
-                        />
-                      ))}
-                    </div>
-                    <span className="text-xs text-neutral-450 font-bold ml-1">{quickViewProduct.rating.toFixed(1)}</span>
-                  </div>
-
-                  <p className="text-xs text-neutral-300 leading-relaxed mt-2">
-                    {quickViewProduct.description}
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center justify-between border-y border-white/0.05 py-4">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-[9px] font-bold uppercase tracking-wider text-neutral-500">Unit Price</span>
-                      <span className="text-xl font-black text-white">{quickViewProduct.price}</span>
-                    </div>
-                    
-                    <div className="flex flex-wrap items-center gap-1.5 justify-end">
-                      <span className="text-[9px] font-bold text-neutral-400 bg-white/[0.02] border border-white/0.05 px-2.5 py-1 rounded-full">COD Available</span>
-                      <span className="text-[9px] font-bold text-neutral-400 bg-white/[0.02] border border-white/0.05 px-2.5 py-1 rounded-full">Visa / Master</span>
-                      <span className="text-[9px] font-bold text-[#B2C4AC] bg-[#B2C4AC]/5 border border-[#B2C4AC]/10 px-2.5 py-1 rounded-full">Koko - 3 x Split</span>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <button 
-                      onClick={() => {
-                        addToCart({
-                          id: quickViewProduct.id,
-                          name: quickViewProduct.name,
-                          price: quickViewProduct.price,
-                          image: quickViewProduct.image,
-                          category: quickViewProduct.category
-                        });
-                        setQuickViewProduct(null);
-                      }}
-                      className="flex-1 py-3.5 bg-[#B2C4AC] text-[#0D110D] rounded-full font-black text-xs tracking-widest uppercase hover:bg-[#A1B399] transition-all active:scale-95 cursor-pointer text-center"
-                    >
-                      Add To Shopping Bag
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
+      <QuickViewModal />
     </div>
   );
 }

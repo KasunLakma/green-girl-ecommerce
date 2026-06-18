@@ -76,12 +76,14 @@ export default function WebsiteLayout({ children }) {
     setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
 
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
+
   const cartTotal = cartItems.reduce((acc, item) => acc + item.priceNum * item.quantity, 0);
 
   const navItems = ["HOME", "COLLECTIONS", "SPECIALS", "ABOUT"];
 
   return (
-    <CartContext.Provider value={{ cartItems, cartCount, cartTotal, addToCart, updateQuantity, removeFromCart, cartOpen, setCartOpen }}>
+    <CartContext.Provider value={{ cartItems, cartCount, cartTotal, addToCart, updateQuantity, removeFromCart, cartOpen, setCartOpen, quickViewProduct, setQuickViewProduct }}>
       {/* Root layout container safely allowing pointer events to pass down */}
       <div className="relative min-h-screen w-full flex flex-col bg-[#0D110D] overflow-x-hidden pointer-events-auto">
         

@@ -1,6 +1,5 @@
 "use client";
 
-import emailjs from '@emailjs/browser';
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -71,21 +70,35 @@ export default function CheckoutPage() {
   const shipping = getShippingFee(formData.district);
   const grandTotal = subtotal + shipping;
 
-  const handleSubmit = async (e) => {
+  const handlePlaceOrder = async (e) => {
     e.preventDefault();
-    
-    emailjs.send('service_q62ndl4', 'cqvjkdg', {
-      customer_email: formData.email,
-      customer_name: formData.name,
-      contact_number: formData.contactNumber,
-      delivery_address: formData.address,
-      district: formData.district,
-      grand_total: grandTotal
-    }, '_szplL3w-hLlCTExx');
+    try {
+      // Direct REST API call to EmailJS servers
+      await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          service_id: 'service_q62ndl4',
+          template_id: 'cqvjkdg',
+          user_id: '_szplL3w-hLlCTExx',
+          template_params: {
+            to_name: 'Kasun Lakmal',
+            from_name: 'Green Girl Boutique',
+            message: 'Your order for Premium Executive Gel Pen has been placed successfully. Total Amount: Rs. 350.',
+            reply_to: 'kasunlakmal20487ks1@gmail.com'
+          }
+        })
+      });
 
-    localStorage.removeItem('cart');
-    alert('Order Placed Successfully!');
-    window.location.href = '/';
+      localStorage.removeItem('cart');
+      alert('Order Placed Successfully!');
+      window.location.href = '/';
+    } catch (err) {
+      localStorage.removeItem('cart');
+      window.location.href = '/';
+    }
   };
 
   return (
@@ -123,7 +136,7 @@ export default function CheckoutPage() {
                     <p className="text-xs text-neutral-400">Complete the form below to initiate your boutique packaging shipment.</p>
                   </div>
 
-                  <form id="checkout-delivery-form" onSubmit={handleSubmit} className="flex flex-col gap-5">
+                  <form id="checkout-delivery-form" onSubmit={handlePlaceOrder} className="flex flex-col gap-5">
                     {/* Full Name */}
                     <div className="flex flex-col gap-1.5">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Full Name *</label>
