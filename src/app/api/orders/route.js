@@ -5,19 +5,18 @@ export async function GET(request) {
   try {
     const userIdCookie = request.cookies.get("userId")?.value || "";
     
-    // Construct session object matching strict user order query filter
     const session = {
       user: {
         id: userIdCookie
       }
     };
 
-    const userOrders = await prisma.order.findMany({
+    const orders = await prisma.order.findMany({
       where: { userId: session.user.id },
       orderBy: { createdAt: 'desc' }
     });
 
-    return NextResponse.json(userOrders);
+    return NextResponse.json(orders);
   } catch (error) {
     console.error("[User Orders GET Error]:", error);
     return NextResponse.json(
