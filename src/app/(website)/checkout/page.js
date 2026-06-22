@@ -46,15 +46,7 @@ export default function CheckoutPage() {
 
   const subtotal = cartTotal;
   
-  const getShippingFee = (district) => {
-    const westernProvince = ["colombo", "gampaha", "kalutara"];
-    if (westernProvince.includes((district || "").toLowerCase())) {
-      return 350;
-    }
-    return 500;
-  };
-
-  const shipping = getShippingFee(formData.district);
+  const shipping = 350;
   const grandTotal = subtotal + shipping;
 
   const handlePlaceOrder = async (e) => {
