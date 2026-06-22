@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { prisma } from "../../../lib/prisma";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -8,6 +9,21 @@ const transporter = nodemailer.createTransport({
     pass: "YOUR_16_DIGIT_GMAIL_APP_PASSWORD"
   }
 });
+
+export async function GET() {
+  try {
+    const orders = await prisma.order.findMany({
+      orderBy: { createdAt: "desc" }
+    });
+    return NextResponse.json(orders);
+  } catch (error) {
+    console.error("[Order GET Error]:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch orders from database." },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(request) {
   try {
