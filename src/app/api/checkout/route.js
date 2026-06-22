@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { prisma } from "../../../lib/prisma";
+import { revalidatePath } from "next/cache";
 
 const resend = new Resend('re_Ej1dkhZc_FBzjkxaVnmcuGGuDrwG6ZbeB');
 
@@ -38,6 +39,7 @@ export async function POST(request) {
       );
       orderRecord = await Promise.race([dbPromise, timeoutPromise]);
       console.log(`[Prisma Database]: Order successfully persisted with ID: ${orderRecord.id}`);
+      revalidatePath("/admin/orders");
     } catch (dbError) {
       console.warn("[Prisma Database Warning]: Failed or timed out writing order to Neon database. Proceeding with mock reference.");
       console.error(dbError);
