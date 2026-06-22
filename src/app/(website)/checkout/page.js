@@ -20,7 +20,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
 export default function CheckoutPage() {
-  const { cart = [], clearCart } = useCart();
+  const { cartItems = [], cartTotal = 0, clearCart } = useCart();
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,23 +42,9 @@ export default function CheckoutPage() {
     "Moneragala", "Ratnapura", "Kegalle"
   ];
 
-  const checkoutItems = cart.length > 0 ? cart : [
-    {
-      id: "1",
-      name: "Stitch Cute Plush Toy",
-      category: "Toys & Teddies",
-      price: 2400,
-      image: "/images/stitch_toy.png",
-      qty: 1
-    }
-  ];
+  const checkoutItems = cartItems;
 
-  const subtotal = checkoutItems.reduce((acc, item) => {
-    const itemPrice = typeof item.price === "number" 
-      ? item.price 
-      : parseInt(String(item.price).replace(/[^0-9]/g, "")) || 0;
-    return acc + (itemPrice * (item.qty || 1));
-  }, 0);
+  const subtotal = cartTotal;
   
   const getShippingFee = (district) => {
     const westernProvince = ["colombo", "gampaha", "kalutara"];
@@ -318,30 +304,37 @@ export default function CheckoutPage() {
                   
                   {/* Order items stack list */}
                   <div className="flex flex-col gap-4 max-h-48 overflow-y-auto pr-1">
-                    {checkoutItems.map((item, idx) => (
-                      <div key={item.id || idx} className="flex items-center gap-4 py-2 border-b border-white/0.03 last:border-b-0">
-                        {/* Product Thumbnail */}
-                        <div className="w-12 h-12 rounded-lg overflow-hidden bg-black/40 border border-white/0.05 flex-shrink-0">
-                          <img 
-                            src={item.image || "/images/stitch_toy.png"} 
-                            alt={item.name} 
-                            className="w-full h-full object-cover" 
-                          />
-                        </div>
-                        
-                        {/* Item Details */}
-                        <div className="flex-1 min-w-0">
-                          <span className="text-[8px] font-bold tracking-widest text-[#B2C4AC] uppercase">{item.category || "Boutique"}</span>
-                          <h4 className="text-[11px] font-bold text-white truncate">{item.name}</h4>
-                          <span className="text-[10px] text-neutral-400">Qty: {item.qty || 1}</span>
-                        </div>
+                    {checkoutItems.map((item, idx) => {
+                      const qty = item.quantity || item.qty || 1;
+                      const priceVal = typeof item.priceNum === "number"
+                        ? item.priceNum
+                        : (typeof item.price === "number" ? item.price : parseInt(String(item.price).replace(/[^0-9]/g, "")) || 0);
 
-                        {/* Price */}
-                        <span className="text-xs font-bold text-white">
-                          Rs. {(typeof item.price === "number" ? item.price : parseInt(String(item.price).replace(/[^0-9]/g, "")) || 0).toLocaleString()}
-                        </span>
-                      </div>
-                    ))}
+                      return (
+                        <div key={item.id || idx} className="flex items-center gap-4 py-2 border-b border-white/0.03 last:border-b-0">
+                          {/* Product Thumbnail */}
+                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-black/40 border border-white/0.05 flex-shrink-0">
+                            <img 
+                              src={item.image || "/images/stitch_toy.png"} 
+                              alt={item.name} 
+                              className="w-full h-full object-cover" 
+                            />
+                          </div>
+                          
+                          {/* Item Details */}
+                          <div className="flex-1 min-w-0">
+                            <span className="text-[8px] font-bold tracking-widest text-[#B2C4AC] uppercase">{item.category || "Boutique"}</span>
+                            <h4 className="text-[11px] font-bold text-white truncate">{item.name}</h4>
+                            <span className="text-[10px] text-neutral-400">Qty: {qty}</span>
+                          </div>
+
+                          {/* Price */}
+                          <span className="text-xs font-bold text-white">
+                            Rs. {priceVal.toLocaleString()}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {/* Calculations breakdown */}
