@@ -316,7 +316,7 @@ export default function CheckoutPage() {
                   <div className="flex flex-col gap-3 border-t border-white/0.05 pt-4 text-xs">
                     <div className="flex items-center justify-between text-neutral-400">
                       <span>Subtotal</span>
-                      <span>Rs. {subtotal.toLocaleString()}</span>
+                      <span>Rs. {cartTotal.toLocaleString()}</span>
                     </div>
                     
                     <div className="flex items-center justify-between text-neutral-400">
