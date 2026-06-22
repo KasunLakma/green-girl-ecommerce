@@ -20,7 +20,15 @@ import { collection, addDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
 export default function CheckoutPage() {
-  const { cartItems = [], cartTotal = 0, clearCart } = useCart();
+  const { cartItems, cartTotal } = useCart();
+  const { clearCart } = useCart();
+  if (cartItems) {
+    cartItems.forEach((item) => {
+      if (typeof item.price === "string") {
+        item.price = item.priceNum || parseInt(item.price.replace(/[^\d]/g, ""), 10) || 0;
+      }
+    });
+  }
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,12 +50,8 @@ export default function CheckoutPage() {
     "Moneragala", "Ratnapura", "Kegalle"
   ];
 
-  const checkoutItems = cartItems;
-
-  const subtotal = cartTotal;
-  
   const shipping = 350;
-  const grandTotal = subtotal + shipping;
+  const grandTotal = cartTotal + shipping;
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
@@ -295,39 +299,18 @@ export default function CheckoutPage() {
                   <h2 className="text-sm font-extrabold tracking-[0.2em] uppercase text-white pb-3 border-b border-white/0.05">Order Summary</h2>
                   
                   {/* Order items stack list */}
-                  <div className="flex flex-col gap-4 max-h-48 overflow-y-auto pr-1">
-                    {checkoutItems.map((item, idx) => {
-                      const qty = item.quantity || item.qty || 1;
-                      const priceVal = typeof item.priceNum === "number"
-                        ? item.priceNum
-                        : (typeof item.price === "number" ? item.price : parseInt(String(item.price).replace(/[^0-9]/g, "")) || 0);
-
-                      return (
-                        <div key={item.id || idx} className="flex items-center gap-4 py-2 border-b border-white/0.03 last:border-b-0">
-                          {/* Product Thumbnail */}
-                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-black/40 border border-white/0.05 flex-shrink-0">
-                            <img 
-                              src={item.image || "/images/stitch_toy.png"} 
-                              alt={item.name} 
-                              className="w-full h-full object-cover" 
-                            />
+                    {cartItems && cartItems.map((item) => (
+                      <div key={item.id} className="flex items-center justify-between gap-4 py-2">
+                        <div className="flex items-center gap-3">
+                          <img src={item.image || item.imageImg} alt={item.name} className="w-12 h-12 rounded object-cover" />
+                          <div>
+                            <p className="text-sm font-medium text-white">{item.name}</p>
+                            <p className="text-xs text-zinc-400">Qty: {item.quantity}</p>
                           </div>
-                          
-                          {/* Item Details */}
-                          <div className="flex-1 min-w-0">
-                            <span className="text-[8px] font-bold tracking-widest text-[#B2C4AC] uppercase">{item.category || "Boutique"}</span>
-                            <h4 className="text-[11px] font-bold text-white truncate">{item.name}</h4>
-                            <span className="text-[10px] text-neutral-400">Qty: {qty}</span>
-                          </div>
-
-                          {/* Price */}
-                          <span className="text-xs font-bold text-white">
-                            Rs. {priceVal.toLocaleString()}
-                          </span>
                         </div>
-                      );
-                    })}
-                  </div>
+                        <p className="text-sm font-semibold text-white">Rs. {(item.price * item.quantity).toLocaleString()}</p>
+                      </div>
+                    ))}
 
                   {/* Calculations breakdown */}
                   <div className="flex flex-col gap-3 border-t border-white/0.05 pt-4 text-xs">
