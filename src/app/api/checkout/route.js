@@ -8,7 +8,7 @@ const resend = new Resend('re_Ej1dkhZc_FBzjkxaVnmcuGGuDrwG6ZbeB');
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { name, email, address, totalAmount, paymentMethod, contactNumber, district } = body;
+    const { name, email, address, totalAmount, paymentMethod, contactNumber, district, userId } = body;
 
     // Validate payload values
     if (!name || !email || !address || !totalAmount || !paymentMethod) {
@@ -17,6 +17,13 @@ export async function POST(request) {
         { status: 400 }
       );
     }
+
+    const userIdCookie = request.cookies.get("userId")?.value || "";
+    const session = {
+      user: {
+        id: userId || userIdCookie || ""
+      }
+    };
 
     console.log(`[Order Processing]: Initiating checkout for ${name} (${email})...`);
 
@@ -31,7 +38,8 @@ export async function POST(request) {
           totalAmount: parseFloat(totalAmount) || 0,
           paymentMethod,
           contactNumber: contactNumber || "",
-          district: district || ""
+          district: district || "",
+          userId: session.user.id || null
         }
       });
       const timeoutPromise = new Promise((_, reject) =>
@@ -103,7 +111,8 @@ export async function POST(request) {
         success: true,
         message: "Order finalized, profile auto-created, notifications dispatched successfully",
         orderReference: orderId,
-        userEmail: email
+        userEmail: email,
+        order: orderRecord
       }, 
       { status: 200 }
     );

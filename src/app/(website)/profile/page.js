@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
-import { auth, db } from "../../../lib/firebase";
+import { auth } from "../../../lib/firebase";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -11,12 +10,8 @@ import {
   LogOut, 
   User, 
   Package, 
-  Clock, 
   ShieldCheck, 
-  MapPin, 
-  Truck,
-  ArrowRight,
-  ExternalLink
+  ArrowRight
 } from "lucide-react";
 import Link from "next/link";
 
@@ -34,7 +29,6 @@ export default function CustomerProfilePage() {
       
       let activeUser = currentUser;
       
-      // Sandbox fallback: use session storage mock user if firebase user is null
       if (!activeUser) {
         const stored = sessionStorage.getItem("mockUser");
         if (stored) {
@@ -48,7 +42,26 @@ export default function CustomerProfilePage() {
 
       if (activeUser) {
         setUser(activeUser);
-        await fetchUserOrders(activeUser);
+        document.cookie = `userId=${activeUser.uid || activeUser.id || "mock-uid-12345"}; Path=/; SameSite=Strict; Max-Age=3600`;
+
+        const fetchOrders = async () => {
+          setLoadingOrders(true);
+          try {
+            const res = await fetch('/api/orders', { cache: 'no-store' });
+            const data = await res.json();
+            if (isMounted) {
+              setOrders(data);
+            }
+          } catch (error) {
+            console.error("Error fetching orders:", error);
+          } finally {
+            if (isMounted) {
+              setLoadingOrders(false);
+            }
+          }
+        };
+
+        await fetchOrders();
         if (isMounted) {
           setLoading(false);
         }
@@ -66,42 +79,11 @@ export default function CustomerProfilePage() {
     };
   }, [router]);
 
-  const fetchUserOrders = async (currentUser) => {
-    setLoadingOrders(true);
-    try {
-      // Query by userId or by customerEmail to be extremely robust
-      const ordersRef = collection(db, "orders");
-      const q1 = query(ordersRef, where("userId", "==", currentUser.uid));
-      const q2 = query(ordersRef, where("customerEmail", "==", currentUser.email));
-
-      const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
-      
-      const ordersMap = new Map();
-      
-      snap1.forEach((doc) => {
-        ordersMap.set(doc.id, { id: doc.id, ...doc.data() });
-      });
-      snap2.forEach((doc) => {
-        ordersMap.set(doc.id, { id: doc.id, ...doc.data() });
-      });
-
-      // Sort orders by createdAt descending
-      const sortedOrders = Array.from(ordersMap.values()).sort((a, b) => {
-        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-      });
-
-      setOrders(sortedOrders);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-    } finally {
-      setLoadingOrders(false);
-    }
-  };
-
   const handleLogout = async () => {
     try {
       await signOut(auth);
       sessionStorage.removeItem("mockUser");
+      document.cookie = "userId=; Path=/; Max-Age=0";
       router.push("/login");
     } catch (err) {
       console.error("Logout failed:", err);
@@ -181,7 +163,7 @@ export default function CustomerProfilePage() {
                 href="mailto:hello@greengirl.luxury" 
                 className="text-[10px] font-bold text-[#B2C4AC] hover:text-white transition-colors flex items-center gap-1.5 uppercase mt-1"
               >
-                Contact Boutique Support <ArrowRight className="w-3 h-3" />
+                Contact Boutique Support <ArrowRight className="w-3.5 h-3.5" />
               </a>
             </div>
           </div>
@@ -192,7 +174,7 @@ export default function CustomerProfilePage() {
               <h2 className="text-lg font-bold tracking-tight text-white uppercase flex items-center gap-2">
                 <ShoppingBag className="w-5 h-5 text-[#B2C4AC]" /> Order History
               </h2>
-              <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-semibold">
+              <span className="text-[10px] text-neutral-550 uppercase tracking-widest font-semibold font-mono">
                 {orders.length} order{orders.length !== 1 && "s"} found
               </span>
             </div>
@@ -200,104 +182,56 @@ export default function CustomerProfilePage() {
             {loadingOrders ? (
               <div className="hype-glass p-12 border border-white/0.05 flex flex-col items-center justify-center gap-3">
                 <div className="w-8 h-8 border-2 border-[#B2C4AC]/20 border-t-[#B2C4AC] rounded-full animate-spin" />
-                <span className="text-xs text-neutral-400 uppercase tracking-widest font-bold">Fetching Transactions...</span>
-              </div>
-            ) : orders.length === 0 ? (
-              <div className="hype-glass p-12 border border-white/0.05 text-center flex flex-col items-center gap-4">
-                <Package className="w-10 h-10 text-neutral-500" />
-                <div className="flex flex-col gap-1">
-                  <h3 className="text-sm font-bold text-white uppercase">No Orders Found</h3>
-                  <p className="text-xs text-neutral-400 max-w-xs leading-relaxed">
-                    You haven't placed any boutique luxury purchases yet. Complete a checkout transaction to generate dynamic order tracking logs.
-                  </p>
-                </div>
-                <Link 
-                  href="/"
-                  className="px-6 py-2.5 bg-[#B2C4AC] hover:bg-[#A1B399] text-[#0D110D] rounded-full font-bold text-[10px] uppercase tracking-widest transition-all duration-300 mt-2"
-                >
-                  Browse Storefront
-                </Link>
+                <span className="text-xs text-neutral-450 uppercase tracking-widest font-bold">Fetching Transactions...</span>
               </div>
             ) : (
-              <div className="flex flex-col gap-6">
-                {orders.map((order) => {
-                  const statusColors = {
-                    "Pending Approval": "bg-amber-500/10 border-amber-500/20 text-amber-400",
-                    "Shipped": "bg-blue-500/10 border-blue-500/20 text-blue-400",
-                    "Delivered": "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                  };
-
-                  return (
-                    <motion.div
-                      key={order.id}
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="hype-glass p-5 sm:p-6 border border-white/0.05 flex flex-col gap-5 hover:border-white/10 transition-all duration-300"
-                    >
-                      {/* Order Header Info */}
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/0.05 pb-4">
-                        <div className="flex flex-col gap-0.5">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-mono font-bold text-white tracking-wider">{order.orderId || `ORD-${order.id.slice(0, 6)}`}</span>
-                            <span className="text-[10px] text-neutral-550">•</span>
-                            <span className="text-[10px] text-neutral-400 font-medium">
+              <div className="hype-glass p-6 border border-white/0.05 overflow-hidden">
+                <div className="overflow-x-auto w-full">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/0.05 text-[10px] font-bold uppercase tracking-wider text-[#B2C4AC] pb-3">
+                        <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Order ID</th>
+                        <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Date</th>
+                        <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Total Price (Rs.)</th>
+                        <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC] text-right">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/0.02">
+                      {orders.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="py-8 text-center text-xs text-neutral-400 italic">No orders found in your profile history.</td>
+                        </tr>
+                      ) : (
+                        orders.map((order) => (
+                          <tr key={order.id} className="hover:bg-white/0.01 transition-colors">
+                            <td className="py-3.5 text-xs font-semibold text-neutral-100 truncate max-w-[120px]" title={order.id}>
+                              {order.id}
+                            </td>
+                            <td className="py-3.5 text-xs text-neutral-300">
                               {order.createdAt ? new Date(order.createdAt).toLocaleDateString("en-US", {
                                 year: "numeric",
                                 month: "short",
                                 day: "numeric"
-                              }) : "Date N/A"}
-                            </span>
-                          </div>
-                          <span className="text-[9px] text-neutral-400">Payment: <strong className="text-white uppercase font-bold text-[8px]">{order.paymentMethod || "COD"}</strong></span>
-                        </div>
-
-                        {/* Real-time Tracking Badge */}
-                        <div className={`px-3 py-1 rounded-full border text-[9px] font-black tracking-widest uppercase self-start sm:self-auto flex items-center gap-1.5 ${statusColors[order.shippingStatus] || statusColors["Pending Approval"]}`}>
-                          <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-                          {order.shippingStatus || "Pending Approval"}
-                        </div>
-                      </div>
-
-                      {/* Items Ordered */}
-                      <div className="flex flex-col gap-3">
-                        {order.items && order.items.map((item, index) => (
-                          <div key={item.id || index} className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-lg overflow-hidden bg-black/35 border border-white/0.05 flex-shrink-0">
-                              <img 
-                                src={item.image || "/images/stitch_toy.png"} 
-                                alt={item.name} 
-                                className="w-full h-full object-cover" 
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <span className="text-[8px] font-bold tracking-widest text-[#B2C4AC] uppercase">{item.category || "Boutique"}</span>
-                              <h4 className="text-[11px] font-bold text-white truncate">{item.name}</h4>
-                              <span className="text-[9px] text-neutral-400">Qty: {item.qty || 1}</span>
-                            </div>
-                            <span className="text-xs font-bold text-white">
-                              Rs. {(typeof item.price === "number" ? item.price : parseInt(String(item.price).replace(/[^0-9]/g, "")) || 0).toLocaleString()}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Order Footer summary */}
-                      <div className="flex items-center justify-between border-t border-white/0.05 pt-4 text-xs">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-[9px] font-bold uppercase tracking-wider text-neutral-500">Shipping To</span>
-                          <span className="text-[10px] text-neutral-300 font-medium truncate max-w-[200px]" title={order.customerAddress}>
-                            {order.customerAddress || "Colombo, Sri Lanka"}
-                          </span>
-                        </div>
-
-                        <div className="flex flex-col items-end gap-0.5">
-                          <span className="text-[9px] font-bold uppercase tracking-wider text-neutral-500">Amount Paid</span>
-                          <span className="text-sm font-black text-[#B2C4AC]">Rs. {order.totalAmount ? order.totalAmount.toLocaleString() : "0"}</span>
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
+                              }) : "N/A"}
+                            </td>
+                            <td className="py-3.5 text-xs font-medium text-neutral-200">
+                              Rs. {order.totalAmount ? order.totalAmount.toLocaleString() : "0"}
+                            </td>
+                            <td className="py-3.5 text-xs text-right">
+                              <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                                order.status === "Delivered" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/10" :
+                                order.status === "Approved" ? "bg-blue-500/10 text-blue-400 border-blue-500/10" :
+                                "bg-amber-500/10 text-amber-400 border-amber-500/10"
+                              }`}>
+                                • {order.status || "Pending"}
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>

@@ -89,6 +89,7 @@ export default function CheckoutPage() {
           district: formData.district,
           totalAmount: grandTotal,
           paymentMethod: paymentMethod,
+          userId: auth.currentUser?.uid || "",
         }),
       });
 
