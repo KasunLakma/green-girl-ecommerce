@@ -14,7 +14,7 @@ import {
   Banknote
 } from "lucide-react";
 import Link from "next/link";
-import { useCart } from "@/context/CartContext";
+import { useCart, CartContext } from "@/context/CartContext";
 import { db, auth } from "../../../lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
