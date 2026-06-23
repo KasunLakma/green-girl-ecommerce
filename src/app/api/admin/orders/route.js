@@ -1,21 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 
-// Global in-memory status map to track statuses without altering schema
-const orderStatuses = new Map();
-
 export async function GET() {
   try {
     const orders = await prisma.order.findMany({
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
     });
-
-    const enrichedOrders = orders.map((order) => ({
-      ...order,
-      status: orderStatuses.get(order.id) || "Pending"
-    }));
-
-    return NextResponse.json(enrichedOrders);
+    return NextResponse.json(orders);
   } catch (error) {
     console.error("[Admin Orders GET Error]:", error);
     return NextResponse.json(
@@ -36,8 +27,12 @@ export async function PATCH(request) {
       );
     }
 
-    orderStatuses.set(id, status);
-    return NextResponse.json({ success: true, id, status });
+    const updatedOrder = await prisma.order.update({
+      where: { id },
+      data: { status },
+    });
+
+    return NextResponse.json(updatedOrder);
   } catch (error) {
     console.error("[Admin Orders PATCH Error]:", error);
     return NextResponse.json(
