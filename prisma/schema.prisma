@@ -35,3 +35,15 @@ model Order {
   userId        String?
 }
 
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  type      String   @default("Customer (Auto-Created via Order)")
+  status    String   @default("Pending Approval")
+  spend     Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
