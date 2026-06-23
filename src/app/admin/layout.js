@@ -127,7 +127,7 @@ export default function AdminLayout({ children }) {
           </nav>
         </div>
         <div className="flex flex-col gap-3 px-2 py-4 border-t border-white/0.05">
-          <Link href="/" className="w-full block">
+          <Link href="https://green-girl-ecommerce.vercel.app" className="w-full block">
             <button
               className="w-full text-left px-4 py-2 rounded-xl text-[10px] font-bold tracking-widest uppercase text-neutral-300 hover:bg-white/0.05 hover:text-white transition-all duration-200 border border-transparent flex items-center gap-2"
             >
