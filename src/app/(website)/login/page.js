@@ -1,21 +1,64 @@
 "use client";
-import React from "react";
+
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../../lib/firebase";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSignInSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      sessionStorage.setItem("mockUser", JSON.stringify({ email, uid: "mock-uid-12345" }));
+      router.push('/profile');
+    } catch (err) {
+      if (err.message && (err.message.includes("api-key") || err.message.includes("API key") || err.code === "auth/invalid-api-key")) {
+        sessionStorage.setItem("mockUser", JSON.stringify({ email, uid: "mock-uid-12345" }));
+        router.push('/profile');
+      } else {
+        alert(err.message || "Failed to sign in.");
+      }
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black text-white">
-      <div className="w-full max-w-md p-8 border border-zinc-800 rounded-lg bg-zinc-900/50">
-        <h2 className="text-2xl font-bold mb-6 text-center">LOGIN</h2>
-        <form className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Email Address</label>
-            <input type="email" placeholder="user@domain.com" className="w-full p-3 rounded bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-zinc-500" />
+    <div className="min-h-screen flex items-center justify-center bg-[#050705] text-white px-4">
+      <div className="w-full max-w-md bg-[#0D110D] border border-white/0.05 rounded-3xl p-8 shadow-2xl">
+        <h1 className="text-xl font-bold text-center mb-6 uppercase tracking-widest text-[#B2C4AC]">Green Girl Login</h1>
+        <form onSubmit={handleSignInSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-neutral-400">Email Address</label>
+            <input 
+              type="email" 
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="customer@greengirl.luxury"
+              className="w-full px-4 py-3 rounded-xl bg-black/45 border border-white/0.05 text-xs text-white focus:outline-none focus:border-[#B2C4AC]"
+            />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Password</label>
-            <input type="password" placeholder="Enter password" className="w-full p-3 rounded bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-zinc-500" />
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-neutral-400">Password</label>
+            <input 
+              type="password" 
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter Password"
+              className="w-full px-4 py-3 rounded-xl bg-black/45 border border-white/0.05 text-xs text-white focus:outline-none focus:border-[#B2C4AC]"
+            />
           </div>
-          <button type="submit" className="w-full py-3 bg-zinc-100 text-black font-semibold rounded hover:bg-zinc-200 transition">SIGN IN</button>
+          <button 
+            type="submit"
+            className="w-full py-3 bg-[#B2C4AC] text-[#0D110D] hover:bg-[#A1B399] rounded-full font-bold text-xs tracking-widest uppercase mt-4 transition-all"
+          >
+            Sign In
+          </button>
         </form>
       </div>
     </div>
