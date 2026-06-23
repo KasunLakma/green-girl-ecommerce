@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowLeft, 
@@ -20,7 +20,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
 export default function CheckoutPage() {
-  const { cartItems = [], cartTotal = 0, clearCart } = useCart();
+  const { cartItems = [], cartTotal = 0, clearCart } = useContext(CartContext);
 
   // Normalize price to number
   if (cartItems) {
