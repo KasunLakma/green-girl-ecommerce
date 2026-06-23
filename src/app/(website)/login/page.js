@@ -9,11 +9,11 @@ export default function LoginPage() {
         <form className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2">Email Address</label>
-            <input type="email" placeholder="e.g. user@domain.com" className="w-full p-3 rounded bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-zinc-500" />
+            <input type="email" placeholder="user@domain.com" className="w-full p-3 rounded bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-zinc-500" />
           </div>
           <div>
             <label className="block text-sm font-medium mb-2">Password</label>
-            <input type="password" placeholder="••••••••" className="w-full p-3 rounded bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-zinc-500" />
+            <input type="password" placeholder="Enter password" className="w-full p-3 rounded bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-zinc-500" />
           </div>
           <button type="submit" className="w-full py-3 bg-zinc-100 text-black font-semibold rounded hover:bg-zinc-200 transition">SIGN IN</button>
         </form>
