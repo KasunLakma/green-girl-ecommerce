@@ -10,7 +10,8 @@ export default function AdminUsersPage() {
       const res = await fetch("/api/admin/users");
       if (res.ok) {
         const data = await res.json();
-        setUsers(data);
+        const userList = Array.isArray(data) ? data : (data?.users || data?.data || []);
+        setUsers(userList);
       }
     } catch (err) {
       console.error("Failed to fetch users:", err);
