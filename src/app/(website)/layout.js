@@ -10,64 +10,26 @@ export { CartContext, useCart };
 
 export default function WebsiteLayout({ children }) {
   const [activeTab, setActiveTab] = useState("HOME");
-  const [cartOpen, setCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
+  
+  const {
+    cartItems,
+    cartCount,
+    cartTotal,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+    cartOpen,
+    setCartOpen,
+    quickViewProduct,
+    setQuickViewProduct,
+    clearCart
+  } = useCart();
 
-  const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-
-  const addToCart = (product) => {
-    setCartItems((prevItems) => {
-      const existing = prevItems.find((item) => item.id === product.id);
-      if (existing) {
-        return prevItems.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-        );
-      }
-      const priceNum = parseInt(product.price.replace(/[^\d]/g, ""), 10) || 0;
-      return [
-        ...prevItems,
-        {
-          id: product.id,
-          name: product.name,
-          category: product.category,
-          price: product.price,
-          priceNum: priceNum,
-          image: product.image,
-          quantity: 1,
-          alt: product.alt
-        }
-      ];
-    });
-    setCartOpen(true);
-  };
-
-  const updateQuantity = (id, delta) => {
-    setCartItems((prevItems) =>
-      prevItems
-        .map((item) => {
-          if (item.id === id) {
-            const newQty = item.quantity + delta;
-            return newQty > 0 ? { ...item, quantity: newQty } : null;
-          }
-          return item;
-        })
-        .filter(Boolean)
-    );
-  };
-
-  const removeFromCart = (id) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
-  };
-
-  const [quickViewProduct, setQuickViewProduct] = useState(null);
-  const cartTotal = cartItems.reduce((acc, item) => acc + item.priceNum * item.quantity, 0);
   const navItems = ["HOME", "COLLECTIONS", "SPECIALS"];
-  const clearCart = () => setCartItems([]);
 
   return (
-    <CartContext.Provider value={{ cartItems, cartCount, cartTotal, addToCart, updateQuantity, removeFromCart, cartOpen, setCartOpen, quickViewProduct, setQuickViewProduct, clearCart }}>
+    <div className="relative min-h-screen w-full flex flex-col bg-[#0D110D] overflow-x-hidden pointer-events-auto">
       {/* Root layout container safely allowing pointer events to pass down */}
-      <div className="relative min-h-screen w-full flex flex-col bg-[#0D110D] overflow-x-hidden pointer-events-auto">
         
         {/* Full-Width Fixed Header Overlay - z-[100] and w-full float */}
         <header className="fixed top-0 left-0 w-full z-[100] pointer-events-auto">
@@ -350,6 +312,5 @@ export default function WebsiteLayout({ children }) {
         </AnimatePresence>
 
       </div>
-    </CartContext.Provider>
   );
 }

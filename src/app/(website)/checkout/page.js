@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowLeft, 
@@ -20,7 +20,12 @@ import { collection, addDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
 export default function CheckoutPage() {
-  const { cartItems = [], cartTotal = 0, clearCart } = useContext(CartContext);
+  const { cartItems = [], cartTotal = 0, clearCart } = useCart();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Normalize price to number
   if (cartItems) {
@@ -43,6 +48,14 @@ export default function CheckoutPage() {
     address: "",
     district: "Colombo"
   });
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen w-full bg-[#050705] text-white pt-32 pb-20 px-4 md:px-8 relative overflow-x-hidden flex items-center justify-center">
+        <div className="text-xs font-bold tracking-[0.2em] text-[#B2C4AC] uppercase">Loading checkout session...</div>
+      </div>
+    );
+  }
 
   const districts = [
     "Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya", 
