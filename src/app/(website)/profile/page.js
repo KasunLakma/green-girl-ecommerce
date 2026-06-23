@@ -24,48 +24,30 @@ export default function CustomerProfilePage() {
 
   useEffect(() => {
     let isMounted = true;
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (!isMounted) return;
-      
-      let activeUser = currentUser;
-      
-      if (!activeUser) {
-        const stored = sessionStorage.getItem("mockUser");
-        if (stored) {
-          try {
-            activeUser = JSON.parse(stored);
-          } catch (e) {
-            console.error("Failed to parse mock user:", e);
-          }
-        }
-      }
+    let initialUser = null;
 
-      if (activeUser) {
-        setUser(activeUser);
-        document.cookie = `userId=${activeUser.uid || activeUser.id || "mock-uid-12345"}; Path=/; SameSite=Strict; Max-Age=3600`;
-
-        const fetchOrders = async () => {
-          setLoadingOrders(true);
-          try {
-            const res = await fetch('/api/orders', { cache: 'no-store' });
-            const data = await res.json();
-            if (isMounted) {
-              setOrders(data);
-            }
-          } catch (error) {
-            console.error("Error fetching orders:", error);
-          } finally {
-            if (isMounted) {
-              setLoadingOrders(false);
-            }
-          }
-        };
-
-        await fetchOrders();
+    try {
+      const stored = window.sessionStorage.getItem("mockUser");
+      if (stored) {
+        initialUser = JSON.parse(stored);
         if (isMounted) {
+          setUser(initialUser);
+          document.cookie = `userId=${initialUser.uid || initialUser.id || "mock-uid-12345"}; Path=/; SameSite=Strict; Max-Age=3600`;
           setLoading(false);
         }
-      } else {
+      }
+    } catch (e) {
+      console.error("Failed to read sessionStorage in profile mount:", e);
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!isMounted) return;
+
+      if (currentUser) {
+        setUser(currentUser);
+        document.cookie = `userId=${currentUser.uid}; Path=/; SameSite=Strict; Max-Age=3600`;
+        setLoading(false);
+      } else if (!initialUser) {
         setUser(null);
         if (isMounted) {
           router.push("/login");
@@ -78,6 +60,36 @@ export default function CustomerProfilePage() {
       unsubscribe();
     };
   }, [router]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    let isMounted = true;
+    const fetchOrders = async () => {
+      setLoadingOrders(true);
+      try {
+        const res = await fetch('/api/orders', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted) {
+            setOrders(data);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      } finally {
+        if (isMounted) {
+          setLoadingOrders(false);
+        }
+      }
+    };
+
+    fetchOrders();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
   const handleLogout = async () => {
     try {
