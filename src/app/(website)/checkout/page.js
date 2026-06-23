@@ -14,14 +14,15 @@ import {
   Banknote
 } from "lucide-react";
 import Link from "next/link";
-import { useCart } from "../layout";
+import { useCart } from "@/context/CartContext";
 import { db, auth } from "../../../lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
 export default function CheckoutPage() {
-  const { cartItems, cartTotal } = useCart();
-  const { clearCart } = useCart();
+  const { cartItems = [], cartTotal = 0, clearCart } = useCart();
+
+  // Normalize price to number
   if (cartItems) {
     cartItems.forEach((item) => {
       if (typeof item.price === "string") {
@@ -29,6 +30,7 @@ export default function CheckoutPage() {
       }
     });
   }
+
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -301,9 +303,9 @@ export default function CheckoutPage() {
                   {/* Order items stack list */}
                   {cartItems && cartItems.length > 0 ? (
                     cartItems.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between gap-4 py-2 border-b border-zinc-800/50">
+                      <div key={item.id} className="flex items-center justify-between gap-4 py-3 border-b border-zinc-800/50">
                         <div className="flex items-center gap-3">
-                          <img src={item.image || item.imageImg} alt={item.name} className="w-12 h-12 rounded object-cover" />
+                          <img src={item.image || item.imageImg || "/placeholder.png"} alt={item.name} className="w-12 h-12 rounded object-cover" />
                           <div>
                             <p className="text-sm font-medium text-white">{item.name}</p>
                             <p className="text-xs text-zinc-400">Qty: {item.quantity}</p>
@@ -312,13 +314,15 @@ export default function CheckoutPage() {
                         <p className="text-sm font-semibold text-white">Rs. {(item.price * item.quantity).toLocaleString()}</p>
                       </div>
                     ))
-                  ) : null}
+                  ) : (
+                    <p className="text-sm text-zinc-500 py-4">Your cart is currently empty.</p>
+                  )}
 
                   {/* Calculations breakdown */}
                   <div className="flex flex-col gap-3 border-t border-white/0.05 pt-4 text-xs">
                     <div className="flex items-center justify-between text-neutral-400">
                       <span>Subtotal</span>
-                      <span>Rs. {cartTotal ? cartTotal.toLocaleString() : "0"}</span>
+                      <span>Rs. {cartTotal.toLocaleString()}</span>
                     </div>
                     
                     <div className="flex items-center justify-between text-neutral-400">
@@ -330,7 +334,7 @@ export default function CheckoutPage() {
 
                     <div className="flex items-center justify-between border-t border-white/0.05 pt-4 text-sm font-bold text-white">
                       <span>Grand Total</span>
-                      <span className="text-base text-[#B2C4AC] font-black">Rs. {cartTotal ? (cartTotal + 350).toLocaleString() : "350"}</span>
+                      <span className="text-base text-[#B2C4AC] font-black">Rs. {(cartTotal + 350).toLocaleString()}</span>
                     </div>
                   </div>
 
