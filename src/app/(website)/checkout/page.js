@@ -299,18 +299,18 @@ export default function CheckoutPage() {
                   <h2 className="text-sm font-extrabold tracking-[0.2em] uppercase text-white pb-3 border-b border-white/0.05">Order Summary</h2>
                   
                   {/* Order items stack list */}
-                    {cartItems && cartItems.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between gap-4 py-2">
-                        <div className="flex items-center gap-3">
-                          <img src={item.image || item.imageImg} alt={item.name} className="w-12 h-12 rounded object-cover" />
-                          <div>
-                            <p className="text-sm font-medium text-white">{item.name}</p>
-                            <p className="text-xs text-zinc-400">Qty: {item.quantity}</p>
-                          </div>
+                  {cartItems && cartItems.length > 0 && cartItems.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between gap-4 py-2 border-b border-zinc-800/50">
+                      <div className="flex items-center gap-3">
+                        <img src={item.image || item.imageImg} alt={item.name} className="w-12 h-12 rounded object-cover" />
+                        <div>
+                          <p className="text-sm font-medium text-white">{item.name}</p>
+                          <p className="text-xs text-zinc-400">Qty: {item.quantity}</p>
                         </div>
-                        <p className="text-sm font-semibold text-white">Rs. {(item.price * item.quantity).toLocaleString()}</p>
                       </div>
-                    ))}
+                      <p className="text-sm font-semibold text-white">Rs. {(item.price * item.quantity).toLocaleString()}</p>
+                    </div>
+                  ))}
 
                   {/* Calculations breakdown */}
                   <div className="flex flex-col gap-3 border-t border-white/0.05 pt-4 text-xs">
