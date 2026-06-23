@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, X, Plus, Minus, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-export { CartContext, useCart } from "@/context/CartContext";
+import { CartContext, useCart } from "@/context/CartContext";
+export { CartContext, useCart };
 
 export default function WebsiteLayout({ children }) {
   const [activeTab, setActiveTab] = useState("HOME");
