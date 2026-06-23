@@ -18,18 +18,7 @@ export function useCart() {
 export default function WebsiteLayout({ children }) {
   const [activeTab, setActiveTab] = useState("HOME");
   const [cartOpen, setCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Stitch Cute Plush Toy",
-      category: "Toys & Teddies",
-      price: "Rs. 2,400",
-      priceNum: 2400,
-      image: "/images/stitch_toy.png",
-      quantity: 1,
-      alt: "Premium soft-stuffed Stitch cute plush toy"
-    }
-  ]);
+  const [cartItems, setCartItems] = useState([]);
 
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
