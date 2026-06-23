@@ -3,9 +3,7 @@ import { prisma } from "../../../../lib/prisma";
 
 export async function GET() {
   try {
-    const orders = await prisma.order.findMany({
-      orderBy: { createdAt: "desc" },
-    });
+    const orders = await prisma.order.findMany();
     return NextResponse.json(orders);
   } catch (error) {
     console.error("[Admin Orders GET Error]:", error);
