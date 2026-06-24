@@ -87,6 +87,14 @@ export default function CheckoutPage() {
           totalAmount: grandTotal,
           paymentMethod: paymentMethod,
           userId: auth.currentUser?.uid || "",
+          items: cartItems.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: parseFloat(item.priceNum) || 0,
+            quantity: parseInt(item.quantity) || 1,
+            color: item.selectedVariantColor || item.color || null,
+            size: item.selectedVariantSize || item.size || null
+          }))
         }),
       });
 

@@ -11,7 +11,14 @@ import {
   User, 
   Package, 
   ShieldCheck, 
-  ArrowRight
+  ArrowRight,
+  ChevronDown,
+  ChevronUp,
+  CreditCard,
+  MapPin,
+  Phone,
+  Mail,
+  Tag
 } from "lucide-react";
 import Link from "next/link";
 
@@ -20,6 +27,7 @@ export default function CustomerProfilePage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const [expandedOrder, setExpandedOrder] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -205,41 +213,185 @@ export default function CustomerProfilePage() {
                         <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Order ID</th>
                         <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Date</th>
                         <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Total Price (Rs.)</th>
+                        <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC]">Method</th>
                         <th className="pb-3 text-[10px] font-bold tracking-wider uppercase text-[#B2C4AC] text-right">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/0.02">
                       {orders.length === 0 ? (
                         <tr>
-                          <td colSpan={4} className="py-8 text-center text-xs text-neutral-400 italic">No orders found in your profile history.</td>
+                          <td colSpan={5} className="py-8 text-center text-xs text-neutral-400 italic">No orders found in your profile history.</td>
                         </tr>
                       ) : (
-                        orders.map((order) => (
-                          <tr key={order.id} className="hover:bg-white/0.01 transition-colors">
-                            <td className="py-3.5 text-xs font-semibold text-neutral-100 truncate max-w-[120px]" title={order.id}>
-                              {order.id}
-                            </td>
-                            <td className="py-3.5 text-xs text-neutral-300">
-                              {order.createdAt ? new Date(order.createdAt).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric"
-                              }) : "N/A"}
-                            </td>
-                            <td className="py-3.5 text-xs font-medium text-neutral-200">
-                              Rs. {order.totalAmount ? order.totalAmount.toLocaleString() : "0"}
-                            </td>
-                            <td className="py-3.5 text-xs text-right">
-                              <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
-                                order.status === "Delivered" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/10" :
-                                order.status === "Approved" ? "bg-blue-500/10 text-blue-400 border-blue-500/10" :
-                                "bg-amber-500/10 text-amber-400 border-amber-500/10"
-                              }`}>
-                                • {order.status || "Pending"}
-                              </span>
-                            </td>
-                          </tr>
-                        ))
+                        orders.map((order) => {
+                          const isExpanded = expandedOrder === order.id;
+                          
+                          const getStatusStep = (status) => {
+                            const s = (status || "").toUpperCase();
+                            if (s === "DELIVERED") return 4;
+                            if (s === "SHIPPED" || s === "OUT_FOR_DELIVERY" || s === "OUT FOR DELIVERY") return 3;
+                            if (s === "PROCESSING" || s === "APPROVED") return 2;
+                            return 1;
+                          };
+
+                          const currentStep = getStatusStep(order.status);
+                          const steps = [
+                            { label: "Pending", desc: "Order received" },
+                            { label: "Processing", desc: "Packaging package" },
+                            { label: "Out for Delivery", desc: "Shipped out" },
+                            { label: "Delivered", desc: "Delivered package" }
+                          ];
+                          const orderPrice = order.totalPrice || order.totalAmount || 0;
+
+                          return (
+                            <React.Fragment key={order.id}>
+                              <tr 
+                                onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
+                                className="hover:bg-white/0.02 cursor-pointer border-b border-white/0.05 transition-colors"
+                              >
+                                <td className="py-4 text-xs font-semibold text-neutral-100 truncate max-w-[120px]" title={order.id}>
+                                  <div className="flex items-center gap-1.5">
+                                    {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-[#B2C4AC]" /> : <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />}
+                                    <span className="font-mono text-[11px]">{order.id}</span>
+                                  </div>
+                                </td>
+                                <td className="py-4 text-xs text-neutral-300">
+                                  {order.createdAt ? new Date(order.createdAt).toLocaleDateString("en-US", {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric"
+                                  }) : "N/A"}
+                                </td>
+                                <td className="py-4 text-xs font-bold text-white">
+                                  Rs. {orderPrice.toLocaleString()}
+                                </td>
+                                <td className="py-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider text-[10px]">
+                                  {order.paymentMethod || "COD"}
+                                </td>
+                                <td className="py-4 text-xs text-right">
+                                  <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border uppercase tracking-wider ${
+                                    order.status === "DELIVERED" || order.status === "Delivered" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/10" :
+                                    order.status === "SHIPPED" || order.status === "Approved" ? "bg-blue-500/10 text-blue-400 border-blue-500/10" :
+                                    "bg-amber-500/10 text-amber-400 border-amber-500/10"
+                                  }`}>
+                                    • {order.status || "Pending"}
+                                  </span>
+                                </td>
+                              </tr>
+
+                              {isExpanded && (
+                                <tr>
+                                  <td colSpan={5} className="p-0 bg-white/[0.01]">
+                                    <div className="p-6 border-b border-white/0.05 flex flex-col gap-6">
+                                      
+                                      {/* Stepper timeline */}
+                                      <div className="flex flex-col gap-4">
+                                        <div className="flex justify-between items-center">
+                                          <span className="text-[10px] font-bold text-[#B2C4AC] uppercase tracking-widest">Delivery Progress Timeline</span>
+                                          <span className="text-[10px] text-neutral-400">Current Status: <strong className="text-white uppercase">{order.status || "PENDING"}</strong></span>
+                                        </div>
+                                        
+                                        <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-0 mt-4 px-4 pb-4">
+                                          {/* Lines */}
+                                          <div className="absolute left-1/12 right-1/12 top-4 h-[2px] bg-white/10 hidden md:block -z-10" />
+                                          <div 
+                                            className="absolute left-1/12 top-4 h-[2px] bg-emerald-500 hidden md:block -z-10 transition-all duration-500" 
+                                            style={{ width: `${Math.max(0, ((currentStep - 1) / 3) * 83.3)}%` }}
+                                          />
+
+                                          <div className="absolute left-8 top-4 bottom-8 w-[2px] bg-white/10 md:hidden -z-10" />
+                                          <div 
+                                            className="absolute left-8 top-4 w-[2px] bg-emerald-500 md:hidden -z-10 transition-all duration-500" 
+                                            style={{ height: `${Math.max(0, ((currentStep - 1) / 3) * 100)}%` }}
+                                          />
+                                          
+                                          {steps.map((step, idx) => {
+                                            const stepNum = idx + 1;
+                                            const isCompleted = currentStep >= stepNum;
+                                            const isActive = currentStep === stepNum;
+                                            
+                                            return (
+                                              <div key={idx} className="flex md:flex-col items-center md:text-center gap-4 md:gap-2 z-10 w-full md:w-1/4">
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs border transition-all duration-300 ${
+                                                  isCompleted 
+                                                    ? "bg-emerald-500 border-emerald-500 text-black shadow-[0_0_12px_rgba(16,185,129,0.3)]" 
+                                                    : "bg-zinc-900 border-white/10 text-neutral-500"
+                                                }`}>
+                                                  {isCompleted ? "✓" : stepNum}
+                                                </div>
+                                                <div className="flex flex-col md:items-center text-left md:text-center">
+                                                  <span className={`text-[11px] font-bold uppercase tracking-wider ${isActive ? "text-white" : isCompleted ? "text-emerald-400" : "text-neutral-400"}`}>
+                                                    {step.label}
+                                                  </span>
+                                                  <span className="text-[9px] text-neutral-500 md:max-w-[120px]">
+                                                    {step.desc}
+                                                  </span>
+                                                </div>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+
+                                      {/* Info Grid */}
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2 pt-6 border-t border-white/0.05">
+                                        <div className="flex flex-col gap-3">
+                                          <span className="text-[10px] font-bold text-[#B2C4AC] uppercase tracking-wider">Shipping Details</span>
+                                          <div className="flex flex-col gap-2.5 bg-black/25 border border-white/[0.03] p-4 rounded-xl text-xs text-neutral-300">
+                                            <div className="flex items-center gap-2">
+                                              <User className="w-3.5 h-3.5 text-neutral-400" />
+                                              <span><strong>Recipient:</strong> {order.customerName || order.name || "Valued Customer"}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              <Mail className="w-3.5 h-3.5 text-neutral-400" />
+                                              <span><strong>Email:</strong> {order.email}</span>
+                                            </div>
+                                            <div className="flex items-start gap-2">
+                                              <MapPin className="w-3.5 h-3.5 text-neutral-400 mt-0.5" />
+                                              <span><strong>Address:</strong> {order.address}{order.city && `, ${order.city}`}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              <Phone className="w-3.5 h-3.5 text-neutral-400" />
+                                              <span><strong>Phone:</strong> {order.phone || order.contactNumber || "N/A"}</span>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <div className="flex flex-col gap-3">
+                                          <span className="text-[10px] font-bold text-[#B2C4AC] uppercase tracking-wider">Items Purchased</span>
+                                          <div className="flex flex-col gap-2.5 max-h-[175px] overflow-y-auto pr-1">
+                                            {order.items && order.items.length > 0 ? (
+                                              order.items.map((item) => (
+                                                <div key={item.id} className="flex justify-between items-center bg-black/25 border border-white/[0.03] p-3 rounded-xl text-xs">
+                                                  <div className="flex flex-col gap-0.5">
+                                                    <span className="font-bold text-white">{item.name}</span>
+                                                    <div className="flex items-center gap-2 text-[10px] text-neutral-400">
+                                                      <span>Qty: {item.quantity}</span>
+                                                      {item.color && <span>• Color: {item.color}</span>}
+                                                      {item.size && <span>• Size: {item.size}</span>}
+                                                    </div>
+                                                  </div>
+                                                  <span className="font-semibold text-[#B2C4AC]">
+                                                    Rs. {(item.price * item.quantity).toLocaleString()}
+                                                  </span>
+                                                </div>
+                                              ))
+                                            ) : (
+                                              <div className="text-xs text-neutral-400 italic py-4">
+                                                Package content details unavailable.
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                    </div>
+                                  </td>
+                                </tr>
+                              )}
+                            </React.Fragment>
+                          );
+                        })
                       )}
                     </tbody>
                   </table>

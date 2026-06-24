@@ -8,7 +8,7 @@ const resend = new Resend('re_Ej1dkhZc_FBzjkxaVnmcuGGuDrwG6ZbeB');
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { name, email, address, totalAmount, paymentMethod, contactNumber, district, userId } = body;
+    const { name, email, address, totalAmount, paymentMethod, contactNumber, district, userId, items } = body;
 
     // Validate payload values
     if (!name || !email || !address || !totalAmount || !paymentMethod) {
@@ -30,20 +30,44 @@ export async function POST(request) {
     // 1. Insert order to Neon database via Prisma with a timeout fallback
     let orderRecord = null;
     try {
+      const parsedTotal = parseFloat(totalAmount) || 0;
       const dbPromise = prisma.order.create({
         data: {
-          name,
+          customerName: name,
           email,
           address,
-          totalAmount: parseFloat(totalAmount) || 0,
-          paymentMethod,
+          city: district || "",
+          phone: contactNumber || "",
+          totalPrice: parsedTotal,
+          status: "PENDING",
+          paymentMethod: (paymentMethod || "COD").toUpperCase(),
+          stockAvailable: true,
+          userId: session.user.id || null,
+
+          // Legacy fields for safety/compatibility
+          name,
           contactNumber: contactNumber || "",
           district: district || "",
-          userId: session.user.id || null
+          totalAmount: parsedTotal,
+
+          // Items array relation
+          items: {
+            create: (items || []).map((item) => ({
+              productId: item.id || null,
+              name: item.name,
+              quantity: parseInt(item.quantity) || 1,
+              price: parseFloat(item.price) || 0,
+              color: item.color || null,
+              size: item.size || null
+            }))
+          }
+        },
+        include: {
+          items: true
         }
       });
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Database write timeout")), 2500)
+        setTimeout(() => reject(new Error("Database write timeout")), 6000)
       );
       orderRecord = await Promise.race([dbPromise, timeoutPromise]);
       console.log(`[Prisma Database]: Order successfully persisted with ID: ${orderRecord.id}`);

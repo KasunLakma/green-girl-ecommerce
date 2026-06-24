@@ -22,18 +22,39 @@ model Product {
 }
 
 model Order {
-  id            String   @id @default(uuid())
-  name          String
-  email         String
-  contactNumber String?
-  address       String
-  district      String?
-  totalAmount   Float
-  paymentMethod String
-  status        String   @default("Pending")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  userId        String?
+  id             String      @id @default(uuid())
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  totalPrice     Float       @default(0.0)
+  totalAmount    Float
+  status         String      @default("PENDING")
+  paymentMethod  String
+  customerName   String      @default("")
+  email          String
+  address        String
+  city           String?
+  phone          String?
+  stockAvailable Boolean     @default(true)
+  userId         String?
+  user           User?       @relation(fields: [userId], references: [id])
+  items          OrderItem[]
+
+  // legacy fields for compatibility
+  name           String
+  contactNumber  String?
+  district       String?
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  name      String
+  quantity  Int
+  price     Float
+  color     String?
+  size      String?
 }
 
 model User {
@@ -45,6 +66,5 @@ model User {
   spend     Float    @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  orders    Order[]
 }
-
-
