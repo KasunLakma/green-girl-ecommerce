@@ -122,14 +122,14 @@ export default function AdminOrdersPage() {
                     Retrieving orders transaction logs...
                   </td>
                 </tr>
-              ) : orders.length === 0 ? (
+              ) : !orders || orders.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-xs text-neutral-500 italic">
                     No order transactions found in PostgreSQL database.
                   </td>
                 </tr>
               ) : (
-                orders.map((order) => {
+                orders?.map((order) => {
                   const orderPrice = order.totalPrice || order.totalAmount || 0;
                   return (
                     <tr key={order.id} className="hover:bg-white/[0.01] transition-colors border-b border-white/0.03">

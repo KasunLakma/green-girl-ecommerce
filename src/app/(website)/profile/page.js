@@ -41,6 +41,7 @@ export default function CustomerProfilePage() {
         if (isMounted) {
           setUser(initialUser);
           document.cookie = `userId=${initialUser.uid || initialUser.id || "mock-uid-12345"}; Path=/; SameSite=Strict; Max-Age=3600`;
+          document.cookie = `userEmail=${initialUser.email || "customer@greengirl.luxury"}; Path=/; SameSite=Strict; Max-Age=3600`;
           setLoading(false);
         }
       }
@@ -54,6 +55,7 @@ export default function CustomerProfilePage() {
       if (currentUser) {
         setUser(currentUser);
         document.cookie = `userId=${currentUser.uid}; Path=/; SameSite=Strict; Max-Age=3600`;
+        document.cookie = `userEmail=${currentUser.email || ""}; Path=/; SameSite=Strict; Max-Age=3600`;
         setLoading(false);
       } else if (!initialUser) {
         setUser(null);
@@ -76,7 +78,7 @@ export default function CustomerProfilePage() {
     const fetchOrders = async () => {
       setLoadingOrders(true);
       try {
-        const res = await fetch('/api/orders', { cache: 'no-store' });
+        const res = await fetch(`/api/users/orders?email=${encodeURIComponent(user.email || "")}`, { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           if (isMounted) {
@@ -218,12 +220,12 @@ export default function CustomerProfilePage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/0.02">
-                      {orders.length === 0 ? (
+                      {!orders || orders.length === 0 ? (
                         <tr>
                           <td colSpan={5} className="py-8 text-center text-xs text-neutral-400 italic">No orders found in your profile history.</td>
                         </tr>
                       ) : (
-                        orders.map((order) => {
+                        orders?.map((order) => {
                           const isExpanded = expandedOrder === order.id;
                           
                           const getStatusStep = (status) => {

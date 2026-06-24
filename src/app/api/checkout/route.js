@@ -27,55 +27,70 @@ export async function POST(request) {
 
     console.log(`[Order Processing]: Initiating checkout for ${name} (${email})...`);
 
-    // 1. Insert order to Neon database via Prisma with a timeout fallback
-    let orderRecord = null;
+    // 1. Ensure the customer User record exists in the database
+    let dbUserId = null;
     try {
-      const parsedTotal = parseFloat(totalAmount) || 0;
-      const dbPromise = prisma.order.create({
-        data: {
-          customerName: name,
-          email,
-          address,
-          city: district || "",
-          phone: contactNumber || "",
-          totalPrice: parsedTotal,
-          status: "PENDING",
-          paymentMethod: (paymentMethod || "COD").toUpperCase(),
-          stockAvailable: true,
-          userId: session.user.id || null,
-
-          // Legacy fields for safety/compatibility
-          name,
-          contactNumber: contactNumber || "",
-          district: district || "",
-          totalAmount: parsedTotal,
-
-          // Items array relation
-          items: {
-            create: (items || []).map((item) => ({
-              productId: item.id || null,
-              name: item.name,
-              quantity: parseInt(item.quantity) || 1,
-              price: parseFloat(item.price) || 0,
-              color: item.color || null,
-              size: item.size || null
-            }))
-          }
+      const dbUser = await prisma.user.upsert({
+        where: { email: email },
+        update: {
+          name: name,
+          spend: { increment: parseFloat(totalAmount) || 0 }
         },
-        include: {
-          items: true
+        create: {
+          id: (session.user.id && session.user.id.trim()) ? session.user.id : undefined,
+          name: name,
+          email: email,
+          type: "Customer (Auto-Created via Order)",
+          status: "Approved",
+          spend: parseFloat(totalAmount) || 0
         }
       });
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Database write timeout")), 6000)
-      );
-      orderRecord = await Promise.race([dbPromise, timeoutPromise]);
-      console.log(`[Prisma Database]: Order successfully persisted with ID: ${orderRecord.id}`);
-      revalidatePath("/admin/orders");
-    } catch (dbError) {
-      console.warn("[Prisma Database Warning]: Failed or timed out writing order to Neon database. Proceeding with mock reference.");
-      console.error(dbError);
+      dbUserId = dbUser.id;
+      console.log(`[Profile Automation]: Verified User database ID: ${dbUserId} for email: ${email}`);
+    } catch (userError) {
+      console.error("[Profile Automation Error]: User upsert failed, continuing with direct order placement:", userError);
     }
+
+    // 2. Insert order to Neon database via Prisma
+    const parsedTotal = parseFloat(totalAmount) || 0;
+    const orderRecord = await prisma.order.create({
+      data: {
+        customerName: name,
+        email,
+        address,
+        city: district || "",
+        phone: contactNumber || "",
+        totalPrice: parsedTotal,
+        status: "PENDING",
+        paymentMethod: (paymentMethod || "COD").toUpperCase(),
+        stockAvailable: true,
+        userId: dbUserId,
+
+        // Legacy fields for safety/compatibility
+        name,
+        contactNumber: contactNumber || "",
+        district: district || "",
+        totalAmount: parsedTotal,
+
+        // Items array relation
+        items: {
+          create: (items || []).map((item) => ({
+            productId: item.id || null,
+            name: item.name,
+            quantity: parseInt(item.quantity) || 1,
+            price: parseFloat(item.price) || 0,
+            color: item.color || null,
+            size: item.size || null
+          }))
+        }
+      },
+      include: {
+        items: true
+      }
+    });
+
+    console.log(`[Prisma Database]: Order successfully persisted with ID: ${orderRecord.id}`);
+    revalidatePath("/admin/orders");
 
     const orderId = orderRecord?.id || "ORD-" + Math.floor(1000 + Math.random() * 9000);
 
