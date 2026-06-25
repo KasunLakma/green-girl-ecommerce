@@ -5,7 +5,10 @@ import QuickViewModal from "../QuickViewModal";
 
 export const dynamic = 'force-dynamic';
 
-export default async function CollectionsPage() {
+export default async function CollectionsPage({ searchParams }) {
+  const resolvedSearchParams = await searchParams;
+  const categoryQuery = resolvedSearchParams?.category;
+
   const staticProducts = [
     {
       id: "1",
@@ -52,6 +55,25 @@ export default async function CollectionsPage() {
     products = staticProducts;
   }
 
+  // Filter products by category if query param is set
+  if (categoryQuery) {
+    products = products.filter(p => {
+      const c = (p.category || "").toLowerCase();
+      const n = (p.name || "").toLowerCase();
+      const d = (p.description || "").toLowerCase();
+      if (categoryQuery === "custom-gifts") {
+        return c.includes("custom") || n.includes("custom") || d.includes("custom");
+      }
+      if (categoryQuery === "gift-hampers") {
+        return c.includes("hamper") || n.includes("hamper") || d.includes("hamper");
+      }
+      if (categoryQuery === "toys-and-teddies") {
+        return c.includes("toy") || c.includes("teddy") || c.includes("merch") || n.includes("toy") || n.includes("teddy") || n.includes("stitch") || d.includes("toy") || d.includes("teddy");
+      }
+      return true;
+    });
+  }
+
   // Filter Premium vs Standard products
   const premiumProducts = products.filter(p => {
     const desc = (p.description || "").toLowerCase();
@@ -72,10 +94,17 @@ export default async function CollectionsPage() {
       <div className="relative z-10 max-w-[1400px] mx-auto flex flex-col gap-12">
         {/* Page Header */}
         <div className="flex flex-col gap-2 mb-4">
-          <span className="text-[10px] font-bold tracking-[0.25em] text-[#B2C4AC] uppercase">Curated Catalog</span>
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white uppercase">Our Collections</h1>
+          <span className="text-[10px] font-bold tracking-[0.25em] text-[#B2C4AC] uppercase">
+            {categoryQuery ? `${categoryQuery.replace("-", " ")} Catalog` : "Curated Catalog"}
+          </span>
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white uppercase">
+            {categoryQuery ? categoryQuery.replace("-", " ") : "Our Collections"}
+          </h1>
           <p className="text-xs text-neutral-400 max-w-lg mt-1">
-            Browse through our premium selection of luxury gift hampers, customized ceramic mugs, and bespoke collectibles.
+            {categoryQuery 
+              ? `Browse through our exclusive selection of ${categoryQuery.replace("-", " ")} curated with premium quality.`
+              : "Browse through our premium selection of luxury gift hampers, customized ceramic mugs, and bespoke collectibles."
+            }
           </p>
         </div>
 

@@ -2,14 +2,16 @@
 
 import React, { createContext, useContext, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, X, Plus, Minus, ArrowRight } from "lucide-react";
+import { ShoppingBag, X, Plus, Minus, ArrowRight, Menu } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { CartContext, useCart } from "@/context/CartContext";
 export { CartContext, useCart };
 
 export default function WebsiteLayout({ children }) {
-  const [activeTab, setActiveTab] = useState("HOME");
+  const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const {
     cartItems,
@@ -25,7 +27,15 @@ export default function WebsiteLayout({ children }) {
     clearCart
   } = useCart();
 
-  const navItems = ["HOME", "COLLECTIONS", "SPECIALS"];
+  const navItems = [
+    { name: "HOME", href: "/" },
+    { name: "COLLECTIONS", href: "/collections" },
+    { name: "SPECIALS", href: "/specials" }
+  ];
+
+  const activeTab = pathname === "/" ? "HOME" : 
+                    pathname.startsWith("/collections") ? "COLLECTIONS" : 
+                    pathname.startsWith("/specials") ? "SPECIALS" : "";
 
   return (
     <div className="relative min-h-screen w-full flex flex-col bg-[#0D110D] overflow-x-hidden pointer-events-auto">
@@ -45,48 +55,32 @@ export default function WebsiteLayout({ children }) {
 
               {/* Navigation Links */}
               <nav className="hidden md:flex items-center gap-8">
-                {navItems.map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => {
-                      setActiveTab(item);
-                      if (item === "COLLECTIONS") {
-                        window.location.href = "/collections";
-                        return;
-                      }
-                      if (item === "SPECIALS") {
-                        window.location.href = "/specials";
-                        return;
-                      }
-                      const isHome = typeof window !== "undefined" && window.location.pathname === "/";
-                      if (!isHome) {
-                        window.location.href = item === "HOME" ? "/" : `/#${item.toLowerCase()}`;
-                      } else {
-                        if (item === "HOME") {
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        } else {
-                          const el = document.getElementById(item.toLowerCase());
-                          if (el) el.scrollIntoView({ behavior: "smooth" });
-                        }
-                      }
-                    }}
-                    className="relative py-1 text-[10px] font-bold tracking-[0.2em] uppercase text-neutral-400 hover:text-white transition-colors duration-250 cursor-pointer active:scale-95 group"
-                  >
-                    <span className="relative z-10">{item}</span>
-                    {activeTab === item ? (
-                      <motion.span 
-                        layoutId="activeNavLine"
-                        className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#B2C4AC] shadow-[0_0_10px_rgba(178,196,172,0.8)]"
-                        transition={{ type: "spring", stiffness: 180, damping: 20 }}
-                      />
-                    ) : (
-                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-[#B2C4AC]/40 group-hover:w-full transition-all duration-300" />
-                    )}
-                  </button>
-                ))}
+                {navItems.map((item) => {
+                  const isActive = activeTab === item.name;
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={`relative py-1 text-[10px] font-bold tracking-[0.2em] uppercase transition-colors duration-250 cursor-pointer active:scale-95 group ${
+                        isActive ? "text-white font-extrabold" : "text-neutral-400 hover:text-white"
+                      }`}
+                    >
+                      <span className="relative z-10">{item.name}</span>
+                      {isActive ? (
+                        <motion.span 
+                          layoutId="activeNavLine"
+                          className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#B2C4AC] shadow-[0_0_10px_rgba(178,196,172,0.8)]"
+                          transition={{ type: "spring", stiffness: 180, damping: 20 }}
+                        />
+                      ) : (
+                        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-[#B2C4AC]/40 group-hover:w-full transition-all duration-300" />
+                      )}
+                    </Link>
+                  );
+                })}
               </nav>
 
-              {/* Cart Trigger */}
+              {/* Cart & Menu Triggers */}
               <div className="flex items-center gap-4">
                 <button 
                   onClick={() => setCartOpen(true)}
@@ -102,6 +96,15 @@ export default function WebsiteLayout({ children }) {
                       {cartCount}
                     </motion.span>
                   )}
+                </button>
+
+                {/* Mobile Menu Toggle */}
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="md:hidden p-2.5 rounded-full hover:bg-white/5 border border-white/0.05 text-white hover:text-[#B2C4AC] transition-colors cursor-pointer active:scale-95"
+                  aria-label="Toggle navigation menu"
+                >
+                  {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
                 </button>
               </div>
             </div>
@@ -135,9 +138,9 @@ export default function WebsiteLayout({ children }) {
                   { name: "Home", href: "/" },
                   { name: "Collections", href: "/collections" },
                   { name: "Specials", href: "/specials" },
-                  { name: "Custom Gifts", href: "/custom-gifts" },
-                  { name: "Gift Hampers", href: "/gift-hampers" },
-                  { name: "Toys & Teddies", href: "/toys-and-teddies" },
+                  { name: "Custom Gifts", href: "/collections?category=custom-gifts" },
+                  { name: "Gift Hampers", href: "/collections?category=gift-hampers" },
+                  { name: "Toys & Teddies", href: "/collections?category=toys-and-teddies" },
                   { name: "About Us", href: "/about" }
                 ].map(link => (
                   <Link key={link.name} href={link.href} className="text-[10px] text-neutral-400 hover:text-[#B2C4AC] transition-colors">{link.name}</Link>
@@ -178,6 +181,11 @@ export default function WebsiteLayout({ children }) {
             <span className="text-[9px] text-neutral-500 uppercase tracking-widest">
               © 2026 Green Girl Ceylon Boutique. All rights reserved.
             </span>
+            <div className="flex items-center gap-4">
+              <Link href="/privacy-policy" className="text-[9px] text-neutral-500 hover:text-[#B2C4AC] uppercase tracking-widest transition-colors">Privacy Policy</Link>
+              <span className="text-[9px] text-neutral-600">|</span>
+              <Link href="/terms-and-conditions" className="text-[9px] text-neutral-500 hover:text-[#B2C4AC] uppercase tracking-widest transition-colors">Terms & Conditions</Link>
+            </div>
           </div>
         </footer>
 
@@ -306,6 +314,85 @@ export default function WebsiteLayout({ children }) {
                   </button>
                 </div>
 
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* Mobile Menu Drawer - High-priority overlays z-[150] */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.6 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMobileMenuOpen(false)}
+                className="fixed inset-0 z-[150] bg-black backdrop-blur-sm md:hidden"
+              />
+
+              {/* Drawer Panel */}
+              <motion.div
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ type: "spring", damping: 26, stiffness: 220 }}
+                className="fixed top-0 left-0 h-full w-full max-w-xs bg-[#0B0E0B] border-r border-white/0.05 p-6 backdrop-blur-xl z-[150] shadow-2xl flex flex-col justify-between md:hidden"
+              >
+                {/* Upper Section */}
+                <div className="flex flex-col gap-8">
+                  {/* Header */}
+                  <div className="flex items-center justify-between border-b border-white/0.05 pb-5">
+                    <Link href="/" className="flex items-center gap-2 group" onClick={() => setMobileMenuOpen(false)}>
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#6E856A] to-[#B2C4AC] flex items-center justify-center">
+                        <span className="text-[#0D110D] font-extrabold text-[11px] tracking-tighter">GG</span>
+                      </div>
+                      <span className="text-xs font-bold tracking-[0.2em] uppercase text-white">GREEN GIRL</span>
+                    </Link>
+                    <button
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="p-2 rounded-full bg-white/5 border border-white/0.05 text-neutral-400 hover:text-white hover:bg-white/10 cursor-pointer transition-all active:scale-95"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Navigation Links */}
+                  <nav className="flex flex-col gap-5">
+                    {navItems.map((item) => {
+                      const isActive = activeTab === item.name;
+                      return (
+                        <Link
+                          key={item.name}
+                          href={item.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={`text-xs font-bold tracking-[0.2em] uppercase transition-colors py-2.5 border-b border-white/0.03 ${
+                            isActive ? "text-[#B2C4AC] font-black" : "text-neutral-400 hover:text-white"
+                          }`}
+                        >
+                          {item.name}
+                        </Link>
+                      );
+                    })}
+                    <Link
+                      href="/about"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`text-xs font-bold tracking-[0.2em] uppercase transition-colors py-2.5 border-b border-white/0.03 ${
+                        pathname === "/about" ? "text-[#B2C4AC] font-black" : "text-neutral-400 hover:text-white"
+                      }`}
+                    >
+                      ABOUT US
+                    </Link>
+                  </nav>
+                </div>
+
+                {/* Footer Section */}
+                <div className="border-t border-white/0.05 pt-5 flex flex-col gap-3">
+                  <span className="text-[9px] text-neutral-500 uppercase tracking-widest">
+                    © 2026 Green Girl Ceylon Boutique.
+                  </span>
+                </div>
               </motion.div>
             </>
           )}
